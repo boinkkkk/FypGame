@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions.Comparers;
+using Unity.Netcode;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : NetworkBehaviour
 {
     // private float horizontal;
     
@@ -12,6 +13,8 @@ public class PlayerMovement : MonoBehaviour
     public Rigidbody2D rb;
     public float speed;
     private float Move;
+    public float jump;
+    public bool isJumping;
 
    
 //    [SerializeField] private Transform groundCheck;
@@ -26,9 +29,31 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!IsOwner) return;
+
         Move = Input.GetAxis("Horizontal");
         rb.velocity = new Vector2( Move * speed, rb.velocity.y);
         Flip();
+        
+        if (Input.GetButtonDown("Jump") && isJumping == false) 
+        {
+            rb.AddForce(new Vector2(rb.velocity.x, jump));
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D other) {
+        // if player is on the ground, means not jumping
+        if (other.gameObject.CompareTag("Ground")) 
+        {
+            isJumping = false;
+        }
+    }
+    private void OnCollisionExit2D(Collision2D other) {
+        // if player is NOT on the ground, means jumping
+        if (other.gameObject.CompareTag("Ground")) 
+        {
+            isJumping = true;
+        }
     }
 
 
