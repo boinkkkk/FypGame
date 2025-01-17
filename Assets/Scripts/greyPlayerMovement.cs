@@ -10,11 +10,14 @@ public class greyPlayerMovement : MonoBehaviour
     private float Move;
     public float jump;
     public bool isJumping;
+    private SpriteRenderer spriteRenderer;
+    Animator animator;
     
     // Start is called before the first frame update
     void Start()
     {
-        
+        spriteRenderer = GetComponent<SpriteRenderer>(); // Get the SpriteRenderer
+        animator = GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -22,6 +25,26 @@ public class greyPlayerMovement : MonoBehaviour
     {
         Move = Input.GetAxis("Horizontal");
         rb.velocity = new Vector2( Move * speed, rb.velocity.y);
+        if(Input.GetKeyDown(KeyCode.LeftShift)) {
+            animator.Play("WalkingAnim");
+        }
+
+        // Flip the sprite based on movement direction
+        if (Move > 0) // Moving right
+        {
+            spriteRenderer.flipX = false;
+            animator.SetBool("isWalking", true);
+            // animator.Play("WalkingState");
+        }
+        else if (Move < 0) // Moving left
+        {
+            spriteRenderer.flipX = true;
+            animator.SetBool("isWalking", true);
+        }
+
+        else {
+            animator.SetBool("isWalking", false);
+        }
 
         //Ensures no player movement once arrow keys are not held down (doesnt work)
         // if (Move != 0)
