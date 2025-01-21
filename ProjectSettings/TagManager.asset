@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Ground
   - RedButton
+  - Enemy
   layers:
   - Default
   - TransparentFX
