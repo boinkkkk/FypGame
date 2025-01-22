@@ -354,8 +354,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b4a6e4895b124a4b827f2b3575e0c1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rb: {fileID: 91643428}
   respawnPoint: {fileID: 0}
-  deathDelay: 1
+  deathDelay: 3
 --- !u!1 &124007415
 GameObject:
   m_ObjectHideFlags: 3
