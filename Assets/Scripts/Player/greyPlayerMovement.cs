@@ -11,6 +11,12 @@ public class greyPlayerMovement : MonoBehaviour
     private float Move;
     public float jump;
     public bool isJumping;
+    // public float groundGraceTime = 0.1f; // Time to remain grounded after losing contact
+    // public bool isGrounded;
+    //  public LayerMask groundLayer; // Assign this to the "Ground" layer in the Inspector
+    // public Transform groundCheck; // Create an empty GameObject under the player and assign it here
+    // public float checkRadius = 0.2f; // The radius for ground detection
+    // private float groundGraceCounter;
     private SpriteRenderer spriteRenderer;
     Animator animator;
 
@@ -64,6 +70,26 @@ public class greyPlayerMovement : MonoBehaviour
         }
 
     }
+
+    //  void FixedUpdate()
+    // {
+    //     // Ground check using an overlap circle
+    //     isGrounded = Physics2D.OverlapCircle(groundCheck.position, checkRadius, groundLayer);
+
+    //     if (Physics2D.OverlapCircle(groundCheck.position, checkRadius, groundLayer))
+    //     {
+    //         isGrounded = true;
+    //         groundGraceCounter = groundGraceTime; // Reset the grace counter
+    //     }
+    //     else
+    //     {
+    //         groundGraceCounter -= Time.deltaTime;
+    //         if (groundGraceCounter <= 0)
+    //         {
+    //             isGrounded = false;
+    //         }
+    //     }
+    // }
 
     private void OnCollisionEnter2D(Collision2D other) {
         // if player is on the ground, means not jumping
