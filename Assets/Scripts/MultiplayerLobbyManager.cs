@@ -17,11 +17,14 @@ public class MultiplayerLobbyManager : MonoBehaviour
     [SerializeField] private TMP_Text roomCodeText;  // Displays the room code
     [SerializeField] private TMP_InputField joinCodeInput; // Input field for entering a room code
     [SerializeField] private GameObject lobbyUI; // UI for lobby buttons
-    [SerializeField] private GameObject lobbyRoomUI;
+    [SerializeField] private GameObject lobbyRoomUI; //UI for lobby waiting room
+    [SerializeField] private TMP_Text playerListText; // UI Text for player names
 
 
     private UnityTransport transport;
     private Lobby connectedLobby;
+    private List<string> playerNames = new List<string>();
+    private bool isPollingActive = false;
     private const int MaxPlayers = 5; // Change this as needed
 
     private async void Start()
@@ -66,6 +69,9 @@ public class MultiplayerLobbyManager : MonoBehaviour
 
             roomCodeText.text = $"Room Code: {joinCode}"; // Show room code in UI
 
+            // Set Host Name as Player 1
+            playerNames.Add("Player 1");
+
             // Assign Relay transport data
             transport.SetHostRelayData(allocation.RelayServer.IpV4, (ushort)allocation.RelayServer.Port, allocation.AllocationIdBytes, allocation.Key, allocation.ConnectionData);
 
@@ -80,6 +86,10 @@ public class MultiplayerLobbyManager : MonoBehaviour
 
             // SHOW PLAYERS IN LOBBY  
             UpdateLobbyUI(connectedLobby);
+
+            // 🔹 Start Polling for Updates
+        //     isPollingActive = true;
+        //     StartCoroutine(CheckForLobbyUpdates());
         }
 
         catch (System.Exception e)
@@ -88,6 +98,7 @@ public class MultiplayerLobbyManager : MonoBehaviour
             lobbyUI.SetActive(true); // Show UI 
         }
     }
+    
 
     // 🔹 Join a lobby using a room code
     public async void JoinLobby()
@@ -114,6 +125,11 @@ public class MultiplayerLobbyManager : MonoBehaviour
             NetworkManager.Singleton.StartClient();
 
             Debug.Log("Joined Lobby with Code: " + joinCode);
+            roomCodeText.text = $"Room Code: {joinCode}"; // Show room code in UI
+
+            // SWITCH TO LOBBY ROOM UI  
+            lobbyUI.SetActive(false);  
+            lobbyRoomUI.SetActive(true); 
         }
         catch (System.Exception e)
         {
@@ -121,6 +137,45 @@ public class MultiplayerLobbyManager : MonoBehaviour
             lobbyUI.SetActive(true);
         }
     }
+
+    // private IEnumerator CheckForLobbyUpdates()
+    // {
+    //     while (isPollingActive && connectedLobby != null)
+    //     {
+    //         Debug.Log("Checking for lobby updates...");
+    //         yield return StartCoroutine(FetchLobbyUpdates());
+    //         yield return new WaitForSeconds(3f); // Poll every 3 seconds
+    //     }
+    // }
+
+    // private IEnumerator FetchLobbyUpdates()
+    // {
+    //     if (connectedLobby == null)
+    //     {
+    //         Debug.LogWarning("Lobby is null, skipping update.");
+    //         yield break;
+    //     }
+
+    //     Task<Lobby> fetchTask = Lobbies.Instance.GetLobbyAsync(connectedLobby.Id);
+        
+    //     while (!fetchTask.IsCompleted)
+    //     {
+    //         yield return null; // Wait for async task to complete
+    //     }
+
+    //     if (fetchTask.Exception != null)
+    //     {
+    //         Debug.LogError("Failed to fetch lobby updates: " + fetchTask.Exception);
+    //         yield break;
+    //     }
+
+    //     connectedLobby = fetchTask.Result;
+    //     Debug.Log("Lobby updated! Players: " + connectedLobby.Players.Count);
+
+    //     UpdateLobbyUI();
+    // }
+
+
 
     private void UpdateLobbyUI(Lobby lobby) {
     foreach (Player player in lobby.Players) {
