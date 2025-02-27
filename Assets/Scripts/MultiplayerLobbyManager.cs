@@ -17,6 +17,8 @@ public class MultiplayerLobbyManager : MonoBehaviour
     [SerializeField] private TMP_Text roomCodeText;  // Displays the room code
     [SerializeField] private TMP_InputField joinCodeInput; // Input field for entering a room code
     [SerializeField] private GameObject lobbyUI; // UI for lobby buttons
+    [SerializeField] private GameObject lobbyRoomUI;
+
 
     private UnityTransport transport;
     private Lobby connectedLobby;
@@ -24,6 +26,10 @@ public class MultiplayerLobbyManager : MonoBehaviour
 
     private async void Start()
     {
+        // Ensure the correct UI is active at start
+        lobbyUI.SetActive(true);   // Show Lobby UI
+        lobbyRoomUI.SetActive(false); // Hide Lobby Room UI
+
         transport = FindObjectOfType<UnityTransport>(); 
         await AuthenticateUser();
         if (!UnityServices.State.Equals(ServicesInitializationState.Initialized)) {
@@ -42,7 +48,7 @@ public class MultiplayerLobbyManager : MonoBehaviour
     // 🔹 Create a lobby and generate a room code
     public async void CreateLobby()
     {
-        lobbyUI.SetActive(false); // Hide UI while creating
+        lobbyUI.SetActive(true); // Hide UI while creating
 
         try
         {
@@ -67,11 +73,19 @@ public class MultiplayerLobbyManager : MonoBehaviour
             NetworkManager.Singleton.StartHost();
 
             Debug.Log("Lobby Created with Code: " + joinCode);
+
+            // SWITCH TO LOBBY ROOM UI  
+            lobbyUI.SetActive(false);  
+            lobbyRoomUI.SetActive(true);  
+
+            // SHOW PLAYERS IN LOBBY  
+            UpdateLobbyUI(connectedLobby);
         }
+
         catch (System.Exception e)
         {
             Debug.LogError("Failed to create lobby: " + e);
-            lobbyUI.SetActive(true); // Show UI again if failed
+            lobbyUI.SetActive(true); // Show UI 
         }
     }
 
@@ -107,4 +121,12 @@ public class MultiplayerLobbyManager : MonoBehaviour
             lobbyUI.SetActive(true);
         }
     }
+
+    private void UpdateLobbyUI(Lobby lobby) {
+    foreach (Player player in lobby.Players) {
+        Debug.Log($"Player in Lobby: {player.Id}");
+        // Update UI to show player characters (Add UI elements here)
+    }
+}
+
 }
