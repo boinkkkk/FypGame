@@ -988,6 +988,7 @@ MonoBehaviour:
   lobbyUI: {fileID: 167458065}
   lobbyRoomUI: {fileID: 2051905640}
   playerListText: {fileID: 2130421088}
+  joinButton: {fileID: 1349953869}
 --- !u!4 &514125039
 Transform:
   m_ObjectHideFlags: 0
