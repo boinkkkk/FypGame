@@ -29,6 +29,7 @@ public class MultiplayerLobbyManager : MonoBehaviour
     private List<string> playerNames = new List<string>();
     private bool isPollingActive = false;
     private const int MaxPlayers = 5; // Change this as needed
+    private string storedJoinCode;
 
     private async void Start()
     {
@@ -64,6 +65,9 @@ public class MultiplayerLobbyManager : MonoBehaviour
             // Create Relay Allocation
             Allocation allocation = await RelayService.Instance.CreateAllocationAsync(MaxPlayers);
             string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
+            
+            
+            storedJoinCode = joinCode;
 
             // Create Lobby
             var options = new CreateLobbyOptions
@@ -113,13 +117,13 @@ public class MultiplayerLobbyManager : MonoBehaviour
     
 
     // 🔹 Join a lobby using a room code
-    public async void JoinLobby(string joinCode)
+    public async void JoinLobby(string LobbyCode)
     {
         try
         {
-            Debug.Log("Step 1: Attempting to join lobby with code: " + joinCode);
+            Debug.Log("Step 1: Attempting to join lobby with code: " + LobbyCode);
 
-            if (string.IsNullOrEmpty(joinCode))
+            if (string.IsNullOrEmpty(LobbyCode))
             {
                 Debug.LogError("Join Code is empty!");
                 return;
@@ -133,7 +137,7 @@ public class MultiplayerLobbyManager : MonoBehaviour
 
 
             // Join the Lobby
-            Lobby lobby = await Lobbies.Instance.JoinLobbyByCodeAsync(joinCode);
+            Lobby lobby = await Lobbies.Instance.JoinLobbyByCodeAsync(LobbyCode);
 
             if (lobby == null)
             {
@@ -141,14 +145,14 @@ public class MultiplayerLobbyManager : MonoBehaviour
                 return;
             }
 
-            Debug.Log("Step 2: Successfully joined lobby. Code: " + joinCode);
+            Debug.Log("Step 2: Successfully joined lobby. Code: " + LobbyCode);
             connectedLobby = lobby;
 
             // Update UI
             UpdateLobbyUI(connectedLobby);
 
             Debug.Log("Step 3: Connecting to Relay...");
-            JoinAllocation allocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
+            JoinAllocation allocation = await RelayService.Instance.JoinAllocationAsync(storedJoinCode);
 
             // Assign Relay transport data
             transport.SetClientRelayData(
