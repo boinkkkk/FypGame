@@ -151,6 +151,18 @@ public class MultiplayerLobbyManager : MonoBehaviour
             // Update UI
             UpdateLobbyUI(connectedLobby);
 
+            // Retrieve JoinCode from Lobby Data
+            if (lobby.Data.TryGetValue("JoinCode", out DataObject joinCodeObj))
+            {
+                storedJoinCode = joinCodeObj.Value;
+                Debug.Log("Retrieved Relay join code: " + storedJoinCode);
+            }
+            else
+            {
+                Debug.LogError("JoinCode not found in lobby data!");
+                return;
+            }
+
             Debug.Log("Step 3: Connecting to Relay...");
             JoinAllocation allocation = await RelayService.Instance.JoinAllocationAsync(storedJoinCode);
 
@@ -167,6 +179,11 @@ public class MultiplayerLobbyManager : MonoBehaviour
             // Start as client
             NetworkManager.Singleton.StartClient();
             Debug.Log("Step 4: Successfully connected to Relay and started client.");
+
+            // SWITCH TO LOBBY ROOM UI and show code 
+            roomCodeText.text = $"Room Code: {connectedLobby.LobbyCode}"; // Show room code in UI
+            lobbyUI.SetActive(false);  
+            lobbyRoomUI.SetActive(true);  
         }
         catch (LobbyServiceException e)
         {
