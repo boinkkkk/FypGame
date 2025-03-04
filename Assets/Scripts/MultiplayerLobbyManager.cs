@@ -14,6 +14,7 @@ using Unity.Services.Relay.Models;
 using UnityEngine;
 using UnityEngine.UI;
 using ParrelSync; // Import ParrelSync
+using UnityEngine.SceneManagement;
 
 public class MultiplayerLobbyManager : MonoBehaviour
 {
@@ -85,7 +86,7 @@ public class MultiplayerLobbyManager : MonoBehaviour
             roomCodeText.text = $"Room Code: {connectedLobby.LobbyCode}"; // Show room code in UI
 
             // Set Host Name as Player 1
-            playerNames.Add("Player 1");
+            playerNames.Add("Gogo");
 
             // Assign Relay transport data
             transport.SetHostRelayData(allocation.RelayServer.IpV4, (ushort)allocation.RelayServer.Port, allocation.AllocationIdBytes, allocation.Key, allocation.ConnectionData);
@@ -106,6 +107,12 @@ public class MultiplayerLobbyManager : MonoBehaviour
 
             // SHOW PLAYERS IN LOBBY  
             UpdateLobbyUI(connectedLobby);
+
+            // Store the lobby code before changing the scene
+            PlayerPrefs.SetString("LobbyCode", connectedLobby.LobbyCode);
+            PlayerPrefs.Save(); // Save PlayerPrefs
+            SceneManager.LoadScene("LobbyWaitingRoom"); 
+
 
             // Start Polling for Updates
             //     isPollingActive = true;
@@ -188,6 +195,12 @@ public class MultiplayerLobbyManager : MonoBehaviour
             roomCodeText.text = $"Room Code: {connectedLobby.LobbyCode}"; // Show room code in UI
             lobbyUI.SetActive(false);  
             lobbyRoomUI.SetActive(true);  
+
+            // Store the lobby code before changing the scene
+            PlayerPrefs.SetString("LobbyCode", connectedLobby.LobbyCode);
+            PlayerPrefs.Save(); // Save PlayerPrefs
+            SceneManager.LoadScene("GameScene"); // Change to your scene name
+
         }
         catch (LobbyServiceException e)
         {
