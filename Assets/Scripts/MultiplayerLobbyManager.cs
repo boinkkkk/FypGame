@@ -13,6 +13,7 @@ using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
 using UnityEngine;
 using UnityEngine.UI;
+using ParrelSync; // Import ParrelSync
 
 public class MultiplayerLobbyManager : MonoBehaviour
 {
@@ -30,6 +31,7 @@ public class MultiplayerLobbyManager : MonoBehaviour
     private bool isPollingActive = false;
     private const int MaxPlayers = 5; // Change this as needed
     private string storedJoinCode;
+    
 
     private async void Start()
     {
@@ -48,6 +50,7 @@ public class MultiplayerLobbyManager : MonoBehaviour
         joinButton.onClick.AddListener(OnJoinButtonClicked);
     }
 
+
     private static async Task AuthenticateUser()
     {
         await UnityServices.InitializeAsync();
@@ -59,6 +62,7 @@ public class MultiplayerLobbyManager : MonoBehaviour
     public async void CreateLobby()
     {
         lobbyUI.SetActive(true); // Hide UI while creating
+        
 
         try
         {
