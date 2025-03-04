@@ -199,7 +199,7 @@ public class MultiplayerLobbyManager : MonoBehaviour
             // Store the lobby code before changing the scene
             PlayerPrefs.SetString("LobbyCode", connectedLobby.LobbyCode);
             PlayerPrefs.Save(); // Save PlayerPrefs
-            SceneManager.LoadScene("GameScene"); // Change to your scene name
+            SceneManager.LoadScene("LobbyWaitingRoom"); // Change to your scene name
 
         }
         catch (LobbyServiceException e)
