@@ -125,6 +125,7 @@ public class LobbyRoomUIManager : MonoBehaviour
             else
             {
                 nameText.text = (player.Id == hostId) ? "Friend (Host)" : "Friend";
+                playerImage.sprite = playerSprites[playerSpriteIndex]; // Update sprite for friend
                 playerUI.GetComponent<RectTransform>().anchoredPosition = new Vector2(-400, 0);
             }
 
@@ -143,6 +144,9 @@ public class LobbyRoomUIManager : MonoBehaviour
 
         // Update player data in the lobby
         await UpdatePlayerSpriteIndex(currentSpriteIndex);
+
+        // Refresh the lobby UI to show updated sprite for all players
+        RefreshLobbyData();
     }
 
     private async System.Threading.Tasks.Task UpdatePlayerSpriteIndex(int newIndex)
@@ -159,7 +163,7 @@ public class LobbyRoomUIManager : MonoBehaviour
             {
                 Data = playerData
             });
-            
+
             Debug.Log("Sprite index updated successfully!");
 
         }
