@@ -13,6 +13,11 @@ public class LobbyRoomUIManager : MonoBehaviour
     [SerializeField] private TMP_Text roomCodeText; // UI for showing room code
     [SerializeField] private Transform playerPanel; // Parent container for player images
     [SerializeField] private GameObject playerUIPrefab; // Prefab for player UI elements
+    [SerializeField] private Button changeButton; // Button to change sprite
+    [SerializeField] private List<Sprite> playerSprites; // List of available player sprites
+    private int currentSpriteIndex = 0;
+    private Image localPlayerImage; // Reference to the image of 'You'
+
 
     private string lobbyId;
     private Lobby currentLobby;
@@ -29,6 +34,12 @@ public class LobbyRoomUIManager : MonoBehaviour
 
         // Start polling every few seconds
         InvokeRepeating(nameof(RefreshLobbyData), 3f, 3f);
+
+        // Assign button click event
+        if (changeButton != null)
+        {
+            changeButton.onClick.AddListener(ChangePlayerSprite);
+        }
     }
 
     // Fetch and display players
@@ -89,18 +100,72 @@ public class LobbyRoomUIManager : MonoBehaviour
 
             // Assign player name
             TMP_Text nameText = playerUI.GetComponentInChildren<TMP_Text>();
+            Image playerImage = playerUI.GetComponentInChildren<Image>();
+
+            // Retrieve player's sprite index from lobby data
+            int playerSpriteIndex = 0;
+            if (player.Data != null && player.Data.ContainsKey("SpriteIndex"))
+            {
+                playerSpriteIndex = int.Parse(player.Data["SpriteIndex"].Value);
+            }
+
             if (player.Id == localPlayerId)
             {
                 nameText.text = (player.Id == hostId) ? "You (Host)" : "You";
+                localPlayerImage = playerImage; // Store reference for sprite change
+                currentSpriteIndex = playerSpriteIndex; // Load saved sprite index
+
+                if (playerSprites.Count > 0)
+                {
+                    localPlayerImage.sprite = playerSprites[currentSpriteIndex]; // Set initial sprite
+                }
+
+                playerUI.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
             }
             else
             {
                 nameText.text = (player.Id == hostId) ? "Friend (Host)" : "Friend";
+                playerUI.GetComponent<RectTransform>().anchoredPosition = new Vector2(-400, 0);
             }
 
-            // Set position: Local player at center, the other player at -400f
-            RectTransform rt = playerUI.GetComponent<RectTransform>();
-            rt.anchoredPosition = (player.Id == localPlayerId) ? new Vector2(0, 0) : new Vector2(-400, 0);
+            // // Set position: Local player at center, the other player at -400f
+            // RectTransform rt = playerUI.GetComponent<RectTransform>();
+            // rt.anchoredPosition = (player.Id == localPlayerId) ? new Vector2(0, 0) : new Vector2(-400, 0);
+        }
+    }
+
+    private async void ChangePlayerSprite()
+    {
+        if (playerSprites.Count == 0 || localPlayerImage == null) return;
+
+        currentSpriteIndex = (currentSpriteIndex + 1) % playerSprites.Count; // Cycle through sprites
+        localPlayerImage.sprite = playerSprites[currentSpriteIndex];
+
+        // Update player data in the lobby
+        await UpdatePlayerSpriteIndex(currentSpriteIndex);
+    }
+
+    private async System.Threading.Tasks.Task UpdatePlayerSpriteIndex(int newIndex)
+    {
+        try
+        {
+            string localPlayerId = AuthenticationService.Instance.PlayerId;
+            Dictionary<string, PlayerDataObject> playerData = new Dictionary<string, PlayerDataObject>
+            {
+                { "SpriteIndex", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, newIndex.ToString()) }
+            };
+
+            await Lobbies.Instance.UpdatePlayerAsync(lobbyId, localPlayerId, new UpdatePlayerOptions
+            {
+                Data = playerData
+            });
+            
+            Debug.Log("Sprite index updated successfully!");
+
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.LogError($"Error updating player sprite: {e.Message}");
         }
     }
 

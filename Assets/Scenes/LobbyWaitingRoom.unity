@@ -870,6 +870,11 @@ MonoBehaviour:
   roomCodeText: {fileID: 23772788}
   playerPanel: {fileID: 1385903244}
   playerUIPrefab: {fileID: 3255602734335939803, guid: 4dba6fe0bff866d4e88e7d1d06ab6378, type: 3}
+  changeButton: {fileID: 830992850}
+  playerSprites:
+  - {fileID: 21300000, guid: 4a150f9e84a56394e8ff32b9e916ae7d, type: 3}
+  - {fileID: 21300000, guid: 6280079691a96834b96231691c9ca90f, type: 3}
+  - {fileID: 21300000, guid: 76910b93976285b439f6520450bb73a0, type: 3}
 --- !u!4 &370266217
 Transform:
   m_ObjectHideFlags: 0
