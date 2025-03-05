@@ -26,6 +26,9 @@ public class LobbyRoomUIManager : MonoBehaviour
 
         // Try to get lobby info
         await FetchLobbyData();
+
+        // Start polling every few seconds
+        InvokeRepeating(nameof(RefreshLobbyData), 3f, 3f);
     }
 
     // Fetch and display players
@@ -95,8 +98,24 @@ public class LobbyRoomUIManager : MonoBehaviour
             }
             else
             {
-                rt.anchoredPosition = new Vector2(-200 * (middleIndex - i), 0); // Spread out left
+                rt.anchoredPosition = new Vector2(-400 * (middleIndex - i), 0); // Spread out left
             }
         }
     }
+
+    private async void RefreshLobbyData()
+    {
+        if (currentLobby == null) return;
+
+        try
+        {
+            currentLobby = await Lobbies.Instance.GetLobbyAsync(lobbyId);
+            UpdatePlayerUI();
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.LogError($"Error updating lobby: {e.Message}");
+        }
+    }
+
 }
