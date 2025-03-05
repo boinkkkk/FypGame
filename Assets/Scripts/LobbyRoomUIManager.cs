@@ -65,43 +65,46 @@ public class LobbyRoomUIManager : MonoBehaviour
     // Update UI with players
     private void UpdatePlayerUI()
     {
-        // Clear old player UI elements
+        // Clear previous UI elements
         foreach (GameObject obj in playerUIElements)
         {
             Destroy(obj);
         }
         playerUIElements.Clear();
 
-        // Get the local player ID
-        string localPlayerId = AuthenticationService.Instance.PlayerId;
-
-        int playerCount = currentLobby.Players.Count;
-        int middleIndex = playerCount / 2; // Find the middle position
-
-        for (int i = 0; i < playerCount; i++)
+        if (currentLobby.Players.Count > 2)
         {
-            Player player = currentLobby.Players[i];
+            Debug.LogError("Lobby can't have more than 2 players!");
+            return;
+        }
 
+        string localPlayerId = AuthenticationService.Instance.PlayerId;
+        string hostId = currentLobby.HostId; // Get the Host's ID
+
+        foreach (Player player in currentLobby.Players)
+        {
             // Instantiate UI for each player
             GameObject playerUI = Instantiate(playerUIPrefab, playerPanel);
             playerUIElements.Add(playerUI);
 
             // Assign player name
             TMP_Text nameText = playerUI.GetComponentInChildren<TMP_Text>();
-            nameText.text = player.Id == localPlayerId ? "You" : "Player " + (i + 1);
-
-            // Positioning: Local player at center, others on the left
-            RectTransform rt = playerUI.GetComponent<RectTransform>();
             if (player.Id == localPlayerId)
             {
-                rt.anchoredPosition = new Vector2(0, 0); // Center
+                nameText.text = (player.Id == hostId) ? "You (Host)" : "You";
             }
             else
             {
-                rt.anchoredPosition = new Vector2(-400 * (middleIndex - i), 0); // Spread out left
+                nameText.text = (player.Id == hostId) ? "Friend (Host)" : "Friend";
             }
+
+            // Set position: Local player at center, the other player at -400f
+            RectTransform rt = playerUI.GetComponent<RectTransform>();
+            rt.anchoredPosition = (player.Id == localPlayerId) ? new Vector2(0, 0) : new Vector2(-400, 0);
         }
     }
+
+
 
     private async void RefreshLobbyData()
     {
