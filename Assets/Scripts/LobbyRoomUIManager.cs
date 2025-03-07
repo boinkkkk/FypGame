@@ -22,6 +22,8 @@ public class LobbyRoomUIManager : MonoBehaviour
     private string lobbyId;
     private Lobby currentLobby;
     private List<GameObject> playerUIElements = new List<GameObject>();
+    private bool isCooldownActive = false; // Cooldown flag
+    private System.Threading.CancellationTokenSource debounceToken;
 
     async void Start()
     {
@@ -33,7 +35,7 @@ public class LobbyRoomUIManager : MonoBehaviour
         await FetchLobbyData();
 
         // Start polling every few seconds
-        InvokeRepeating(nameof(RefreshLobbyData), 3f, 3f);
+        InvokeRepeating(nameof(RefreshLobbyData), 5f, 5f);
 
         // Assign button click event
         if (changeButton != null)
@@ -135,18 +137,51 @@ public class LobbyRoomUIManager : MonoBehaviour
         }
     }
 
-    private async void ChangePlayerSprite()
+    private void ChangePlayerSprite()
     {
         if (playerSprites.Count == 0 || localPlayerImage == null) return;
+
+        isCooldownActive = true; // Start cooldown
+        // changeButton.interactable = false; // Disable button
 
         currentSpriteIndex = (currentSpriteIndex + 1) % playerSprites.Count; // Cycle through sprites
         localPlayerImage.sprite = playerSprites[currentSpriteIndex];
 
-        // Update player data in the lobby
-        await UpdatePlayerSpriteIndex(currentSpriteIndex);
+        if (debounceToken != null)
+        {
+            debounceToken.Cancel(); // Cancel previous scheduled update
+        }
 
-        // Refresh the lobby UI to show updated sprite for all players
-        RefreshLobbyData();
+        debounceToken = new System.Threading.CancellationTokenSource();
+        _ = DelayedUpdateSprite(debounceToken.Token);
+
+        // // Update player data in the lobby
+        // await UpdatePlayerSpriteIndex(currentSpriteIndex);
+
+        // // Refresh the lobby UI to show updated sprite for all players
+        // RefreshLobbyData();
+
+        // // Set cooldown timer
+        // await System.Threading.Tasks.Task.Delay(3000); // 3-second delay before another click is allowed
+        // isCooldownActive = false; // Reset cooldown
+        // // changeButton.interactable = true; //Re-enable button
+    }
+
+    private async System.Threading.Tasks.Task DelayedUpdateSprite(System.Threading.CancellationToken token)
+    {
+        try
+        {
+            await System.Threading.Tasks.Task.Delay(2000, token); // Wait 2 seconds
+            if (!token.IsCancellationRequested)
+            {
+                await UpdatePlayerSpriteIndex(currentSpriteIndex);
+                RefreshLobbyData();
+            }
+        }
+        catch (System.OperationCanceledException)
+        {
+            // Task was canceled, do nothing
+        }
     }
 
     private async System.Threading.Tasks.Task UpdatePlayerSpriteIndex(int newIndex)
@@ -172,6 +207,8 @@ public class LobbyRoomUIManager : MonoBehaviour
             Debug.LogError($"Error updating player sprite: {e.Message}");
         }
     }
+
+    
 
 
 
