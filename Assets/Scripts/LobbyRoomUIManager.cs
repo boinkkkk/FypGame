@@ -35,7 +35,7 @@ public class LobbyRoomUIManager : MonoBehaviour
         await FetchLobbyData();
 
         // Start polling every few seconds
-        InvokeRepeating(nameof(RefreshLobbyData), 5f, 0);
+        InvokeRepeating(nameof(RefreshLobbyData), 5f, 10f);
 
         // Assign button click event
         if (changeButton != null)
