@@ -35,7 +35,7 @@ public class LobbyRoomUIManager : MonoBehaviour
         await FetchLobbyData();
 
         // Start polling every few seconds
-        InvokeRepeating(nameof(RefreshLobbyData), 5f, 5f);
+        InvokeRepeating(nameof(RefreshLobbyData), 5f, 0);
 
         // Assign button click event
         if (changeButton != null)
@@ -137,12 +137,12 @@ public class LobbyRoomUIManager : MonoBehaviour
         }
     }
 
-    private void ChangePlayerSprite()
+    private async void ChangePlayerSprite()
     {
         if (playerSprites.Count == 0 || localPlayerImage == null) return;
 
         isCooldownActive = true; // Start cooldown
-        // changeButton.interactable = false; // Disable button
+        changeButton.interactable = false; // Disable button
 
         currentSpriteIndex = (currentSpriteIndex + 1) % playerSprites.Count; // Cycle through sprites
         localPlayerImage.sprite = playerSprites[currentSpriteIndex];
@@ -153,7 +153,7 @@ public class LobbyRoomUIManager : MonoBehaviour
         }
 
         debounceToken = new System.Threading.CancellationTokenSource();
-        _ = DelayedUpdateSprite(debounceToken.Token);
+        await DelayedUpdateSprite(debounceToken.Token);
 
         // // Update player data in the lobby
         // await UpdatePlayerSpriteIndex(currentSpriteIndex);
@@ -161,10 +161,10 @@ public class LobbyRoomUIManager : MonoBehaviour
         // // Refresh the lobby UI to show updated sprite for all players
         // RefreshLobbyData();
 
-        // // Set cooldown timer
-        // await System.Threading.Tasks.Task.Delay(3000); // 3-second delay before another click is allowed
-        // isCooldownActive = false; // Reset cooldown
-        // // changeButton.interactable = true; //Re-enable button
+        // Set cooldown timer
+        await System.Threading.Tasks.Task.Delay(3000); // 3-second delay before another click is allowed
+        isCooldownActive = false; // Reset cooldown
+        changeButton.interactable = true; //Re-enable button
     }
 
     private async System.Threading.Tasks.Task DelayedUpdateSprite(System.Threading.CancellationToken token)
@@ -186,27 +186,50 @@ public class LobbyRoomUIManager : MonoBehaviour
 
     private async System.Threading.Tasks.Task UpdatePlayerSpriteIndex(int newIndex)
     {
-        try
+        Debug.Log($"[DEBUG] Attempting to update sprite index: {newIndex}");
+        
+        string localPlayerId = AuthenticationService.Instance.PlayerId;
+        Dictionary<string, PlayerDataObject> playerData = new Dictionary<string, PlayerDataObject>
         {
-            string localPlayerId = AuthenticationService.Instance.PlayerId;
-            Dictionary<string, PlayerDataObject> playerData = new Dictionary<string, PlayerDataObject>
-            {
-                { "SpriteIndex", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, newIndex.ToString()) }
-            };
+            { "SpriteIndex", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, newIndex.ToString()) }
+        };
 
-            await Lobbies.Instance.UpdatePlayerAsync(lobbyId, localPlayerId, new UpdatePlayerOptions
-            {
-                Data = playerData
-            });
+        int retryAttempts = 0;
+        int maxRetries = 3;  // Retry up to 5 times
+        int delay = 3000;    // Start with 3s delay
 
-            Debug.Log("Sprite index updated successfully!");
-
-        }
-        catch (LobbyServiceException e)
+        while (retryAttempts < maxRetries)
         {
-            Debug.LogError($"Error updating player sprite: {e.Message}");
+            try
+            {
+                await Lobbies.Instance.UpdatePlayerAsync(lobbyId, localPlayerId, new UpdatePlayerOptions
+                {
+                    Data = playerData
+                });
+
+                Debug.Log("Sprite index updated successfully!");
+                return;  // Exit loop if successful
+            }
+            catch (LobbyServiceException e)
+            {
+                if (e.Reason == LobbyExceptionReason.RateLimited)
+                {
+                    Debug.LogWarning($"Rate limit exceeded! Retrying in {delay / 1000}s... ({retryAttempts + 1}/{maxRetries})");
+                    await System.Threading.Tasks.Task.Delay(delay);
+                    delay *= 2;  // Exponential backoff (2s → 4s → 8s...)
+                    retryAttempts++;
+                }
+                else
+                {
+                    Debug.LogError($"Error updating player sprite: {e.Message}");
+                    return;  // Exit if it's not a rate limit issue
+                }
+            }
         }
+
+        Debug.LogError("Failed to update sprite after multiple attempts due to rate limits.");
     }
+
 
     
 
