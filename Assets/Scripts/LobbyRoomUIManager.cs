@@ -7,6 +7,7 @@ using Unity.Netcode;
 using UnityEngine.UI;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
+using UnityEngine.SceneManagement;
 
 public class LobbyRoomUIManager : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class LobbyRoomUIManager : MonoBehaviour
     [SerializeField] private Transform playerPanel; // Parent container for player images
     [SerializeField] private GameObject playerUIPrefab; // Prefab for player UI elements
     [SerializeField] private Button changeButton; // Button to change sprite
+    [SerializeField] private Button readyButton; // Button to change sprite
     [SerializeField] private List<Sprite> playerSprites; // List of available player sprites
     private int currentSpriteIndex = 0;
     private Image localPlayerImage; // Reference to the image of 'You'
@@ -42,7 +44,12 @@ public class LobbyRoomUIManager : MonoBehaviour
         {
             changeButton.onClick.AddListener(ChangePlayerSprite);
         }
-    }
+
+        if (readyButton != null)
+        {
+            readyButton.onClick.AddListener(GoToNextScene);
+        }
+     }
 
     // Fetch and display players
     private async System.Threading.Tasks.Task FetchLobbyData()
@@ -229,6 +236,72 @@ public class LobbyRoomUIManager : MonoBehaviour
 
         Debug.LogError("Failed to update sprite after multiple attempts due to rate limits.");
     }
+
+    private async void GoToNextScene()
+    {
+        // Store the local player's "Ready" status
+        string localPlayerId = AuthenticationService.Instance.PlayerId;
+        Dictionary<string, PlayerDataObject> playerData = new Dictionary<string, PlayerDataObject>
+        {
+            { "Ready", new PlayerDataObject(PlayerDataObject.VisibilityOptions.Member, "True") }
+        };
+
+        try
+        {
+            await Lobbies.Instance.UpdatePlayerAsync(lobbyId, localPlayerId, new UpdatePlayerOptions
+            {
+                Data = playerData
+            });
+
+            // Check if all players are ready
+            await CheckAllPlayersReady();
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.LogError($"Error setting player ready: {e.Message}");
+        }
+    }
+
+    private async System.Threading.Tasks.Task CheckAllPlayersReady()
+    {
+        try
+        {
+            Lobby lobby = await Lobbies.Instance.GetLobbyAsync(lobbyId);
+            int readyCount = 0;
+
+            foreach (Player player in lobby.Players)
+            {
+                if (player.Data.ContainsKey("Ready") && player.Data["Ready"].Value == "True")
+                {
+                    readyCount++;
+                }
+            }
+
+            if (readyCount == lobby.Players.Count) // All players are ready
+            {
+                LoadGameScene();
+            }
+            else
+            {
+                Debug.Log("Waiting for all players to be ready...");
+            }
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.LogError($"Error checking ready status: {e.Message}");
+        }
+    }
+
+    private void LoadGameScene()
+    {
+        Debug.Log("All players are ready! Loading game...");
+        PlayerPrefs.SetInt("PlayerSpriteIndex", currentSpriteIndex);
+        PlayerPrefs.Save();
+        SceneManager.LoadScene("LevelSample"); // Change to your actual game scene
+    }
+
+
+
 
 
     
