@@ -264,18 +264,39 @@ public class LobbyRoomUIManager : MonoBehaviour
 
     private async System.Threading.Tasks.Task CheckAllPlayersReady()
     {
+        if (string.IsNullOrEmpty(lobbyId))
+        {
+            Debug.LogError("lobbyId is null or empty! Cannot check ready status.");
+            return;
+        }
+
         try
         {
             Lobby lobby = await Lobbies.Instance.GetLobbyAsync(lobbyId);
+
+            if (lobby == null)
+            {
+                Debug.LogError("Lobby is null! Cannot check ready status.");
+                return;
+            }
+
+            if (lobby.Players == null || lobby.Players.Count == 0)
+            {
+                Debug.LogError("No players in lobby! Cannot check ready status.");
+                return;
+            }
+
             int readyCount = 0;
 
             foreach (Player player in lobby.Players)
             {
-                if (player.Data.ContainsKey("Ready") && player.Data["Ready"].Value == "True")
+                if (player.Data != null && player.Data.ContainsKey("Ready") && player.Data["Ready"].Value == "True")
                 {
                     readyCount++;
                 }
             }
+
+            Debug.Log($"Players Ready: {readyCount}/{lobby.Players.Count}");
 
             if (readyCount == lobby.Players.Count) // All players are ready
             {
@@ -291,6 +312,7 @@ public class LobbyRoomUIManager : MonoBehaviour
             Debug.LogError($"Error checking ready status: {e.Message}");
         }
     }
+
 
     private void LoadGameScene()
     {
