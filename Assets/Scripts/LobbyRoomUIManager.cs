@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
 using UnityEngine.SceneManagement;
+using System.Threading.Tasks;
 
 public class LobbyRoomUIManager : MonoBehaviour
 {
@@ -82,7 +83,7 @@ public class LobbyRoomUIManager : MonoBehaviour
             }
 
             lobbyId = currentLobby.Id;
-            UpdatePlayerUI();
+            await UpdatePlayerUI();
         }
         catch (LobbyServiceException e)
         {
@@ -91,7 +92,7 @@ public class LobbyRoomUIManager : MonoBehaviour
     }
 
     // Update UI with players
-    private void UpdatePlayerUI()
+    private async Task UpdatePlayerUI()
     {
         // Clear previous UI elements
         foreach (GameObject obj in playerUIElements)
@@ -138,6 +139,9 @@ public class LobbyRoomUIManager : MonoBehaviour
                 }
 
                 playerUI.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
+
+                // if local player is not the host, show "Ready" button
+                readyButton.gameObject.SetActive(player.Id != hostId);
             }
             else
             {
@@ -149,6 +153,12 @@ public class LobbyRoomUIManager : MonoBehaviour
             // // Set position: Local player at center, the other player at -400f
             // RectTransform rt = playerUI.GetComponent<RectTransform>();
             // rt.anchoredPosition = (player.Id == localPlayerId) ? new Vector2(0, 0) : new Vector2(-400, 0);
+        }
+
+        //Host should see "StartGame" only if all players are ready
+        if (localPlayerId == hostId) 
+        {
+            await CheckAllPlayersReady();
         }
     }
 
@@ -318,32 +328,24 @@ public class LobbyRoomUIManager : MonoBehaviour
                 return;
             }
 
-            int readyCount = 0;
+            bool allPlayersReady = true;
+
+            // int readyCount = 0;
 
             foreach (Player player in lobby.Players)
             {
-                if (player.Data != null && player.Data.ContainsKey("Ready") && player.Data["Ready"].Value == "True")
+                if (!player.Data.ContainsKey("Ready") || player.Data["Ready"].Value != "True")
                 {
-                    readyCount++;
+                    allPlayersReady = false;
+                    break;
                 }
             }
 
-            Debug.Log($"Players Ready: {readyCount}/{lobby.Players.Count}");
+            Debug.Log($"Players Ready: {(allPlayersReady ? "All Ready ✅" : "Waiting ❌")}");
 
-            if (readyCount == lobby.Players.Count) // All players are ready
+            if (allPlayersReady && AuthenticationService.Instance.PlayerId == lobby.HostId)
             {
-                if (AuthenticationService.Instance.PlayerId == lobby.HostId) // if this player is the host, show "Start Game" button
-                {
-                    startGameButton.gameObject.SetActive(true);
-                }
-                else
-                {
-                    Debug.Log("Waiting for the host to start the game...");
-                }
-            }
-            else
-            {
-                Debug.Log("Waiting for all players to be ready...");
+                startGameButton.gameObject.SetActive(true); // Enable Start Game button for Host
             }
         }
         catch (LobbyServiceException e)
@@ -373,6 +375,7 @@ public class LobbyRoomUIManager : MonoBehaviour
             });
 
             Debug.Log("🎮 Game started! Notifying all players...");
+            LoadGameScene();
         }
         catch (LobbyServiceException e)
         {
@@ -449,7 +452,6 @@ public class LobbyRoomUIManager : MonoBehaviour
             isCooldownActive = true;
             Lobby updatedLobby = await Lobbies.Instance.GetLobbyAsync(lobbyId);
             
-            // Check for "Ready" state changes
             foreach (Player player in updatedLobby.Players)
             {
                 string playerId = player.Id;
@@ -457,26 +459,23 @@ public class LobbyRoomUIManager : MonoBehaviour
 
                 if (lastReadyStates.ContainsKey(playerId))
                 {
-                    // Detect if the player's "Ready" state changed
                     if (lastReadyStates[playerId] != newReadyState)
                     {
-                        // await CheckAllPlayersReady();
                         Debug.Log($"🔔 Player {playerId} is now {(newReadyState == "True" ? "READY" : "NOT READY")}");
                     }
                 }
 
-                // Update stored state
                 lastReadyStates[playerId] = newReadyState;
             }
 
-            if (currentLobby.Data.ContainsKey("GameStarted") && currentLobby.Data["GameStarted"].Value == "True")
+            if (updatedLobby.Data.ContainsKey("GameStarted") && updatedLobby.Data["GameStarted"].Value == "True")
             {
                 Debug.Log("🎮 Game start detected! Loading scene...");
                 LoadGameScene();
             }
 
             currentLobby = updatedLobby;
-            UpdatePlayerUI();
+            await UpdatePlayerUI();
         }
         catch (LobbyServiceException e)
         {
@@ -497,6 +496,7 @@ public class LobbyRoomUIManager : MonoBehaviour
             isCooldownActive = false;
         }
     }
+
 
 
 }
