@@ -15,7 +15,8 @@ public class LobbyRoomUIManager : MonoBehaviour
     [SerializeField] private Transform playerPanel; // Parent container for player images
     [SerializeField] private GameObject playerUIPrefab; // Prefab for player UI elements
     [SerializeField] private Button changeButton; // Button to change sprite
-    [SerializeField] private Button readyButton; // Button to change sprite
+    [SerializeField] private Button readyButton; // Ready Button
+    [SerializeField] private Button startGameButton; // Start Game Button
     [SerializeField] private List<Sprite> playerSprites; // List of available player sprites
     private int currentSpriteIndex = 0;
     private Image localPlayerImage; // Reference to the image of 'You'
@@ -29,6 +30,7 @@ public class LobbyRoomUIManager : MonoBehaviour
 
     async void Start()
     {
+        startGameButton.gameObject.SetActive(false); //Hide StartGameButton initially
         // Get stored lobby code
         string lobbyCode = PlayerPrefs.GetString("LobbyCode", "No Code");
         roomCodeText.text = "Room Code: " + lobbyCode;
@@ -48,6 +50,11 @@ public class LobbyRoomUIManager : MonoBehaviour
         if (readyButton != null)
         {
             readyButton.onClick.AddListener(GoToNextScene);
+        }
+
+        if (startGameButton != null)
+        {
+            startGameButton.onClick.AddListener(StartGame); // Attach event to button
         }
         // InvokeRepeating(nameof(RefreshLobbyAndCheckReady), 5f, 5f); // Every 5 sec
      }
@@ -325,10 +332,9 @@ public class LobbyRoomUIManager : MonoBehaviour
 
             if (readyCount == lobby.Players.Count) // All players are ready
             {
-                if (AuthenticationService.Instance.PlayerId == lobby.HostId) // ✅ Only the host triggers scene change
+                if (AuthenticationService.Instance.PlayerId == lobby.HostId) // if this player is the host, show "Start Game" button
                 {
-                    Debug.Log("✅ All players are ready! Host is loading the game...");
-                    LoadGameScene();
+                    startGameButton.gameObject.SetActive(true);
                 }
                 else
                 {
@@ -345,6 +351,35 @@ public class LobbyRoomUIManager : MonoBehaviour
             Debug.LogError($"Error checking ready status: {e.Message}");
         }
     }
+
+    private async void StartGame()
+    {
+        if (AuthenticationService.Instance.PlayerId != currentLobby.HostId)
+        {
+            Debug.LogWarning("⚠️ Only the host can start the game!");
+            return;
+        }
+
+        try
+        {
+            Dictionary<string, DataObject> lobbyData = new Dictionary<string, DataObject>
+            {
+                { "GameStarted", new DataObject(DataObject.VisibilityOptions.Public, "True") }
+            };
+
+            await Lobbies.Instance.UpdateLobbyAsync(lobbyId, new UpdateLobbyOptions
+            {
+                Data = lobbyData
+            });
+
+            Debug.Log("🎮 Game started! Notifying all players...");
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.LogError($"❌ Error starting game: {e.Message}");
+        }
+    }
+
 
     private async void RefreshLobbyAndCheckReady()
     {
@@ -431,6 +466,12 @@ public class LobbyRoomUIManager : MonoBehaviour
 
                 // Update stored state
                 lastReadyStates[playerId] = newReadyState;
+            }
+
+            if (currentLobby.Data.ContainsKey("GameStarted") && currentLobby.Data["GameStarted"].Value == "True")
+            {
+                Debug.Log("🎮 Game start detected! Loading scene...");
+                LoadGameScene();
             }
 
             currentLobby = updatedLobby;
