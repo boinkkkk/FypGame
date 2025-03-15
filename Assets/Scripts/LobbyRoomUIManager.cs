@@ -49,6 +49,7 @@ public class LobbyRoomUIManager : MonoBehaviour
         {
             readyButton.onClick.AddListener(GoToNextScene);
         }
+        // InvokeRepeating(nameof(RefreshLobbyAndCheckReady), 5f, 5f); // Every 5 sec
      }
 
     // Fetch and display players
@@ -252,6 +253,7 @@ public class LobbyRoomUIManager : MonoBehaviour
             {
                 Data = playerData
             });
+            Debug.Log("✅ Player marked as ready. Checking if all players are ready...");
 
             // Check if all players are ready
             await CheckAllPlayersReady();
@@ -264,6 +266,29 @@ public class LobbyRoomUIManager : MonoBehaviour
 
     private async System.Threading.Tasks.Task CheckAllPlayersReady()
     {
+        // if (currentLobby == null) return;
+
+        // bool allPlayersReady = true;
+
+        // foreach (Player player in currentLobby.Players)
+        // {
+        //     if (!player.Data.ContainsKey("Ready") || player.Data["Ready"].Value != "True")
+        //     {
+        //         allPlayersReady = false;
+        //         break;
+        //     }
+        // }
+
+        // if (allPlayersReady)
+        // {
+        //     Debug.Log("✅ All players are ready! Loading game...");
+        //     SceneManager.LoadScene("LevelSample");
+        // }
+        // else
+        // {
+        //     Debug.Log("❌ Not all players are ready yet.");
+        // }
+
         if (string.IsNullOrEmpty(lobbyId))
         {
             Debug.LogError("lobbyId is null or empty! Cannot check ready status.");
@@ -313,6 +338,30 @@ public class LobbyRoomUIManager : MonoBehaviour
         }
     }
 
+    private async void RefreshLobbyAndCheckReady()
+    {
+        if (currentLobby == null) return;
+
+        try
+        {
+            currentLobby = await Lobbies.Instance.GetLobbyAsync(lobbyId);
+            await CheckAllPlayersReady(); // Check status after fetching data
+        }
+        catch (LobbyServiceException e)
+        {
+            if (e.Reason == LobbyExceptionReason.RateLimited)
+            {
+                Debug.LogWarning("⚠️ Rate limit exceeded! Slowing down requests.");
+                CancelInvoke(nameof(RefreshLobbyAndCheckReady));
+                InvokeRepeating(nameof(RefreshLobbyAndCheckReady), 10f, 10f); // Increase delay
+            }
+            else
+            {
+                Debug.LogError($"Error updating lobby: {e.Message}");
+            }
+        }
+    }
+
 
     private void LoadGameScene()
     {
@@ -338,6 +387,7 @@ public class LobbyRoomUIManager : MonoBehaviour
         {
             currentLobby = await Lobbies.Instance.GetLobbyAsync(lobbyId);
             UpdatePlayerUI();
+            // await CheckAllPlayersReady();
         }
         catch (LobbyServiceException e)
         {
