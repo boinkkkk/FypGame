@@ -325,7 +325,15 @@ public class LobbyRoomUIManager : MonoBehaviour
 
             if (readyCount == lobby.Players.Count) // All players are ready
             {
-                LoadGameScene();
+                if (AuthenticationService.Instance.PlayerId == lobby.HostId) // ✅ Only the host triggers scene change
+                {
+                    Debug.Log("✅ All players are ready! Host is loading the game...");
+                    LoadGameScene();
+                }
+                else
+                {
+                    Debug.Log("Waiting for the host to start the game...");
+                }
             }
             else
             {
@@ -379,20 +387,74 @@ public class LobbyRoomUIManager : MonoBehaviour
 
 
 
+    // private async void RefreshLobbyData()
+    // {
+    //     if (currentLobby == null) return;
+
+    //     try
+    //     {
+    //         currentLobby = await Lobbies.Instance.GetLobbyAsync(lobbyId);
+    //         UpdatePlayerUI();
+    //         // await CheckAllPlayersReady();
+    //     }
+    //     catch (LobbyServiceException e)
+    //     {
+    //         Debug.LogError($"Error updating lobby: {e.Message}");
+    //     }
+    // }
+
+    private Dictionary<string, string> lastReadyStates = new Dictionary<string, string>(); // Store last known ready states
+
     private async void RefreshLobbyData()
     {
-        if (currentLobby == null) return;
+        if (currentLobby == null || isCooldownActive) return;
 
         try
         {
-            currentLobby = await Lobbies.Instance.GetLobbyAsync(lobbyId);
+            isCooldownActive = true;
+            Lobby updatedLobby = await Lobbies.Instance.GetLobbyAsync(lobbyId);
+            
+            // Check for "Ready" state changes
+            foreach (Player player in updatedLobby.Players)
+            {
+                string playerId = player.Id;
+                string newReadyState = (player.Data != null && player.Data.ContainsKey("Ready")) ? player.Data["Ready"].Value : "False";
+
+                if (lastReadyStates.ContainsKey(playerId))
+                {
+                    // Detect if the player's "Ready" state changed
+                    if (lastReadyStates[playerId] != newReadyState)
+                    {
+                        Debug.Log($"🔔 Player {playerId} is now {(newReadyState == "True" ? "READY" : "NOT READY")}");
+                    }
+                }
+
+                // Update stored state
+                lastReadyStates[playerId] = newReadyState;
+            }
+
+            currentLobby = updatedLobby;
             UpdatePlayerUI();
-            // await CheckAllPlayersReady();
         }
         catch (LobbyServiceException e)
         {
-            Debug.LogError($"Error updating lobby: {e.Message}");
+            if (e.Reason == LobbyExceptionReason.RateLimited)
+            {
+                Debug.LogWarning("⚠️ Rate limit exceeded! Increasing refresh delay.");
+                CancelInvoke(nameof(RefreshLobbyData));
+                InvokeRepeating(nameof(RefreshLobbyData), 15f, 15f);
+            }
+            else
+            {
+                Debug.LogError($"Error updating lobby: {e.Message}");
+            }
+        }
+        finally
+        {
+            await System.Threading.Tasks.Task.Delay(5000);
+            isCooldownActive = false;
         }
     }
+
 
 }
