@@ -476,6 +476,7 @@ public class LobbyRoomUIManager : MonoBehaviour
 
             currentLobby = updatedLobby;
             UpdatePlayerUI();
+            await CheckAllPlayersReady();
         }
         catch (LobbyServiceException e)
         {
