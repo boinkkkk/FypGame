@@ -460,7 +460,7 @@ public class LobbyRoomUIManager : MonoBehaviour
                     // Detect if the player's "Ready" state changed
                     if (lastReadyStates[playerId] != newReadyState)
                     {
-                        await CheckAllPlayersReady();
+                        // await CheckAllPlayersReady();
                         Debug.Log($"🔔 Player {playerId} is now {(newReadyState == "True" ? "READY" : "NOT READY")}");
                     }
                 }
@@ -477,7 +477,6 @@ public class LobbyRoomUIManager : MonoBehaviour
 
             currentLobby = updatedLobby;
             UpdatePlayerUI();
-            
         }
         catch (LobbyServiceException e)
         {
