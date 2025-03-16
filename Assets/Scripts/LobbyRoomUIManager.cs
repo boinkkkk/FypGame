@@ -373,6 +373,7 @@ public class LobbyRoomUIManager : MonoBehaviour
             });
 
             Debug.Log("🎮 Game started! Notifying all players...");
+            NetworkManager.Singleton.SceneManager.LoadScene("LevelSample", LoadSceneMode.Single);
         }
         catch (LobbyServiceException e)
         {

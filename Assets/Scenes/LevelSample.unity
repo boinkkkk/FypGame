@@ -139,7 +139,7 @@ GameObject:
   - component: {fileID: 91643431}
   - component: {fileID: 91643432}
   m_Layer: 0
-  m_Name: greyPlayer
+  m_Name: pinkPlayer
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1485,11 +1485,11 @@ GameObject:
   - component: {fileID: 1121381694}
   - component: {fileID: 1121381693}
   - component: {fileID: 1121381692}
-  - component: {fileID: 1121381691}
   - component: {fileID: 1121381690}
   - component: {fileID: 1121381689}
+  - component: {fileID: 1121381697}
   m_Layer: 0
-  m_Name: pinkPlayer
+  m_Name: greyPlayer
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1531,22 +1531,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &1121381691
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1121381688}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62bfbe79aa2681d49b11e88e98ff0f74, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rb: {fileID: 1121381694}
-  speed: 8
-  jump: 90
-  isJumping: 0
 --- !u!114 &1121381692
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1707,6 +1691,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1121381697
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1121381688}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb26f2ee8f9a69241a72cc49f9913edc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 5
 --- !u!1 &1174119085
 GameObject:
   m_ObjectHideFlags: 0

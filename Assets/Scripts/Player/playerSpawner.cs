@@ -1,75 +1,58 @@
 using UnityEngine;
-using UnityEngine.UI;
-using System.Collections.Generic;
+using Unity.Netcode;
+using Unity.Services.Authentication;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
-using Unity.Services.Authentication;
-using Unity.Services.Core;
+using System.Threading.Tasks;
 
-public class playerSpawner : MonoBehaviour
+public class PlayerSpawner : NetworkBehaviour
 {
-    [SerializeField] private GameObject playerPrefab; // Prefab for the player object
-    [SerializeField] private Transform spawnPoint1;  // Spawn point for player 1
-    [SerializeField] private Transform spawnPoint2;  // Spawn point for player 2
-    [SerializeField] private List<Sprite> playerSprites; // List of available sprites
+    public GameObject playerPrefab; // Assign in Unity Inspector
+    private Lobby currentLobby;
 
-    private async void Start()
+    public override void OnNetworkSpawn()
     {
-        await FetchLobbyData();
+        if (IsServer)
+        {
+            SpawnPlayers();
+        }
     }
 
-    private async System.Threading.Tasks.Task FetchLobbyData()
+    private async void SpawnPlayers()
     {
-        try
+        // Fetch the lobby data
+        string lobbyCode = PlayerPrefs.GetString("LobbyCode");
+        QueryResponse response = await Lobbies.Instance.QueryLobbiesAsync();
+        
+        foreach (Lobby lobby in response.Results)
         {
-            // Fetch the current lobby
-            QueryResponse response = await Lobbies.Instance.QueryLobbiesAsync();
-            Lobby currentLobby = null;
-
-            foreach (Lobby lobby in response.Results)
+            if (lobby.LobbyCode == lobbyCode)
             {
-                if (lobby.LobbyCode == PlayerPrefs.GetString("LobbyCode"))
-                {
-                    currentLobby = lobby;
-                    break;
-                }
-            }
-
-            if (currentLobby == null)
-            {
-                Debug.LogError("Lobby not found in game scene!");
-                return;
-            }
-
-            string localPlayerId = AuthenticationService.Instance.PlayerId;
-            string hostId = currentLobby.HostId;
-
-            int index = 0;
-            foreach (Player player in currentLobby.Players)
-            {
-                // Retrieve sprite index
-                int spriteIndex = 0;
-                if (player.Data != null && player.Data.ContainsKey("SpriteIndex"))
-                {
-                    spriteIndex = int.Parse(player.Data["SpriteIndex"].Value);
-                }
-
-                // Instantiate player object
-                GameObject newPlayer = Instantiate(playerPrefab, (index == 0) ? spawnPoint1.position : spawnPoint2.position, Quaternion.identity);
-                Image playerImage = newPlayer.GetComponentInChildren<Image>(); // Assuming your prefab has an Image component
-
-                // Assign sprite
-                if (playerSprites.Count > spriteIndex)
-                {
-                    playerImage.sprite = playerSprites[spriteIndex];
-                }
-
-                index++;
+                currentLobby = lobby;
+                break;
             }
         }
-        catch (LobbyServiceException e)
+
+        if (currentLobby == null)
         {
-            Debug.LogError($"Error fetching lobby data in game scene: {e.Message}");
+            Debug.LogError("Lobby not found!");
+            return;
+        }
+
+        // Spawn each player at a different position
+        Vector3[] spawnPositions = { new Vector3(-3, 0, 0), new Vector3(3, 0, 0) };
+        int index = 0;
+
+        foreach (Player player in currentLobby.Players)
+        {
+            GameObject newPlayer = Instantiate(playerPrefab, spawnPositions[index], Quaternion.identity);
+            NetworkObject networkObject = newPlayer.GetComponent<NetworkObject>();
+
+            // Assign ownership correctly using Netcode client IDs
+            ulong clientId = (ulong)index;  // TEMP FIX: Assign IDs sequentially (not ideal for multi-client)
+            networkObject.SpawnAsPlayerObject(clientId);
+
+            index++;
         }
     }
 }
