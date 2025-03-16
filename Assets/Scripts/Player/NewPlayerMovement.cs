@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Unity.Netcode;
 
-public class greyPlayerMovement : MonoBehaviour
+public class NewPlayerMovement : NetworkBehaviour
 {
 
     public Rigidbody2D rb;
@@ -12,12 +12,7 @@ public class greyPlayerMovement : MonoBehaviour
     private float Move;
     public float jump;
     public bool isJumping;
-    // public float groundGraceTime = 0.1f; // Time to remain grounded after losing contact
-    // public bool isGrounded;
-    //  public LayerMask groundLayer; // Assign this to the "Ground" layer in the Inspector
-    // public Transform groundCheck; // Create an empty GameObject under the player and assign it here
-    // public float checkRadius = 0.2f; // The radius for ground detection
-    // private float groundGraceCounter;
+    
     private SpriteRenderer spriteRenderer;
     Animator animator;
 
@@ -32,7 +27,12 @@ public class greyPlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!IsOwner) return; // Only the owner can control movement
+
         Move = Input.GetAxis("Horizontal");
+        // Send movement input to the server
+        MoveServerRpc(Move);
+
         rb.velocity = new Vector2( Move * speed, rb.velocity.y);
         if(Input.GetKeyDown(KeyCode.LeftShift)) {
             animator.Play("WalkingAnim");
@@ -55,21 +55,56 @@ public class greyPlayerMovement : MonoBehaviour
             animator.SetBool("isWalking", false);
         }
 
-        //Ensures no player movement once arrow keys are not held down (doesnt work)
-        // if (Move != 0)
-        // {
-        //     rb.velocity = new Vector2(Move * speed, rb.velocity.y); // Apply horizontal velocity
-        // }
-        // else
-        // {
-        //     rb.velocity = new Vector2(0, rb.velocity.y); // Stop horizontal movement
-        // }
         
-        if (Input.GetButtonDown("Jump") && isJumping == false) 
+        // if (Input.GetButtonDown("Jump") && isJumping == false) 
+        // {
+        //     rb.AddForce(Vector2.up * jump, ForceMode2D.Impulse);
+        // }
+
+        // Handle Jumping
+        if (Input.GetButtonDown("Jump") && !isJumping)
         {
-            rb.AddForce(Vector2.up * jump, ForceMode2D.Impulse);
+            JumpServerRpc();
         }
 
+    }
+
+    [ServerRpc]
+    void MoveServerRpc(float move)
+    {
+        rb.velocity = new Vector2(move * speed, rb.velocity.y);
+
+        // Sync animation and sprite flipping across clients
+        FlipClientRpc(move);
+    }
+
+    [ServerRpc]
+    void JumpServerRpc()
+    {
+        if (!isJumping)
+        {
+            rb.AddForce(Vector2.up * jump, ForceMode2D.Impulse);
+            isJumping = true;
+        }
+    }
+
+    [ClientRpc]
+    void FlipClientRpc(float move)
+    {
+        if (move > 0)
+        {
+            spriteRenderer.flipX = false;
+            animator.SetBool("isWalking", true);
+        }
+        else if (move < 0)
+        {
+            spriteRenderer.flipX = true;
+            animator.SetBool("isWalking", true);
+        }
+        else
+        {
+            animator.SetBool("isWalking", false);
+        }
     }
 
     //  void FixedUpdate()

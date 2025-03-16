@@ -1700,10 +1700,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1121381688}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bb26f2ee8f9a69241a72cc49f9913edc, type: 3}
+  m_Script: {fileID: 11500000, guid: 0390da950d5869a4bbeefebc46137268, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 5
+  rb: {fileID: 1121381694}
+  speed: 8
+  jump: 90
+  isJumping: 0
 --- !u!1 &1174119085
 GameObject:
   m_ObjectHideFlags: 0
