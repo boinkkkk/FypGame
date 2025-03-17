@@ -67,8 +67,11 @@ public class PlayerSpawner : NetworkBehaviour
             GameObject newPlayer = Instantiate(playerPrefab, spawnPositions[index], Quaternion.identity);
             NetworkObject networkObject = newPlayer.GetComponent<NetworkObject>();
 
-            // Assign ownership correctly using Netcode client IDs
-            ulong clientId = (ulong)index;  // TEMP FIX: Assign IDs sequentially (not ideal for multi-client)
+            // // Assign ownership correctly using Netcode client IDs
+            // ulong clientId = (ulong)index;  // TEMP FIX: Assign IDs sequentially (not ideal for multi-client)
+            
+            // Get the correct Client ID from Netcode
+            ulong clientId = NetworkManager.Singleton.ConnectedClientsList[index].ClientId;
             networkObject.SpawnAsPlayerObject(clientId);
 
             index++;
