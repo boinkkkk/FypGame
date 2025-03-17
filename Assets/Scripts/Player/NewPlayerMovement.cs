@@ -39,7 +39,7 @@ public class NewPlayerMovement : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        // if (!IsOwner) return; // Only the owner can control movement
+        if (!IsOwner) return; // Only the owner can control movement
 
 // uncomment from here
         Move = Input.GetAxis("Horizontal");
