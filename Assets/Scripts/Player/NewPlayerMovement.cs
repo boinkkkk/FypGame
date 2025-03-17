@@ -141,14 +141,15 @@ public class NewPlayerMovement : NetworkBehaviour
         // if player is on the ground, means not jumping
         if (other.gameObject.CompareTag("Ground")) 
         {
-            isJumping.Value = false;
+            RequestSetJumpingServerRpc(false);
+            // isJumping.Value = false;
         }
     }
     private void OnCollisionExit2D(Collision2D other) {
         // if player is NOT on the ground, means jumping
         if (other.gameObject.CompareTag("Ground")) 
         {
-            RequestSetJumpingServerRpc(false);
+            RequestSetJumpingServerRpc(true);
             // isJumping.Value = true;
         }
     }
