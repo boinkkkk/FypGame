@@ -98,13 +98,16 @@ public class NewPlayerMovement : NetworkBehaviour
         {
             rb.AddForce(Vector2.up * jump, ForceMode2D.Impulse);
             isJumping = true;
+
+            // Notify all clients that a jump happened
+            JumpClientRpc();
         }
     }
 
     [ClientRpc]
     void FlipClientRpc(float move)
     {
-        if(!IsOwner) return; //Prevent running on non-owners
+        // if(!IsOwner) return; //Prevent running on non-owners
         if (spriteRenderer == null || animator == null) return; // Prevent null error
 
         if (move > 0)
@@ -123,25 +126,13 @@ public class NewPlayerMovement : NetworkBehaviour
         }
     }
 
-    //  void FixedUpdate()
-    // {
-    //     // Ground check using an overlap circle
-    //     isGrounded = Physics2D.OverlapCircle(groundCheck.position, checkRadius, groundLayer);
+    [ClientRpc]
+    void JumpClientRpc()
+    {
+        if (!IsOwner) return; // Prevent running on non-owners
 
-    //     if (Physics2D.OverlapCircle(groundCheck.position, checkRadius, groundLayer))
-    //     {
-    //         isGrounded = true;
-    //         groundGraceCounter = groundGraceTime; // Reset the grace counter
-    //     }
-    //     else
-    //     {
-    //         groundGraceCounter -= Time.deltaTime;
-    //         if (groundGraceCounter <= 0)
-    //         {
-    //             isGrounded = false;
-    //         }
-    //     }
-    // }
+        animator.SetTrigger("Jump"); // Play jump animation
+    }
 
     private void OnCollisionEnter2D(Collision2D other) {
         // if player is on the ground, means not jumping
