@@ -18,11 +18,18 @@ public class NewPlayerMovement : NetworkBehaviour
 
     
     // Start is called before the first frame update
-    void Start()
+    // void Start()
+    // {
+    //     spriteRenderer = GetComponent<SpriteRenderer>(); // Get the SpriteRenderer
+    //     animator = GetComponent<Animator>();
+    // }
+
+    public override void OnNetworkSpawn()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>(); // Get the SpriteRenderer
+        spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
     }
+
 
     // Update is called once per frame
     void Update()
@@ -91,6 +98,9 @@ public class NewPlayerMovement : NetworkBehaviour
     [ClientRpc]
     void FlipClientRpc(float move)
     {
+        if(!IsOwner) return; //Prevent running on non-owners
+        if (spriteRenderer == null || animator == null) return; // Prevent null error
+
         if (move > 0)
         {
             spriteRenderer.flipX = false;
