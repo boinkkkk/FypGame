@@ -11,10 +11,13 @@ public class NewPlayerMovement : NetworkBehaviour
     public float speed;
     private float Move;
     public float jump;
-    public bool isJumping;
+    // public bool isJumping;
     
     private SpriteRenderer spriteRenderer;
     Animator animator;
+
+    // Use NetworkVariable to sync isJumping
+    private NetworkVariable<bool> isJumping = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     
     // Start is called before the first frame update
@@ -75,7 +78,7 @@ public class NewPlayerMovement : NetworkBehaviour
         // }
 
         // Handle Jumping
-        if (Input.GetButtonDown("Jump") && !isJumping)
+        if (Input.GetButtonDown("Jump") && !isJumping.Value)
         {
             JumpServerRpc();
         }
@@ -94,10 +97,10 @@ public class NewPlayerMovement : NetworkBehaviour
     [ServerRpc]
     void JumpServerRpc()
     {
-        if (!isJumping)
+        if (!isJumping.Value)
         {
             // rb.AddForce(Vector2.up * jump, ForceMode2D.Impulse);
-            isJumping = true;
+            isJumping.Value = true;
 
             // Notify all clients that a jump happened
             JumpClientRpc();
@@ -138,14 +141,14 @@ public class NewPlayerMovement : NetworkBehaviour
         // if player is on the ground, means not jumping
         if (other.gameObject.CompareTag("Ground")) 
         {
-            isJumping = false;
+            isJumping.Value = false;
         }
     }
     private void OnCollisionExit2D(Collision2D other) {
         // if player is NOT on the ground, means jumping
         if (other.gameObject.CompareTag("Ground")) 
         {
-            isJumping = true;
+            isJumping.Value = true;
         }
     }
 
