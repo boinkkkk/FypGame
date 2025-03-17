@@ -96,7 +96,7 @@ public class NewPlayerMovement : NetworkBehaviour
     {
         if (!isJumping)
         {
-            rb.AddForce(Vector2.up * jump, ForceMode2D.Impulse);
+            // rb.AddForce(Vector2.up * jump, ForceMode2D.Impulse);
             isJumping = true;
 
             // Notify all clients that a jump happened
@@ -131,7 +131,7 @@ public class NewPlayerMovement : NetworkBehaviour
     {
         if (!IsOwner) return; // Prevent running on non-owners
 
-        animator.SetTrigger("Jump"); // Play jump animation
+         rb.AddForce(Vector2.up * jump, ForceMode2D.Impulse); // Apply force locally
     }
 
     private void OnCollisionEnter2D(Collision2D other) {
