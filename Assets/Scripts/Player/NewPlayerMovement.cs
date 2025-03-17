@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Unity.Netcode;
+using Cinemachine;
 
 public class NewPlayerMovement : NetworkBehaviour
 {
@@ -15,6 +16,7 @@ public class NewPlayerMovement : NetworkBehaviour
     
     private SpriteRenderer spriteRenderer;
     Animator animator;
+    private CinemachineVirtualCamera cinemachineCam;
 
     // Use NetworkVariable to sync isJumping
     private NetworkVariable<bool> isJumping = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -25,6 +27,19 @@ public class NewPlayerMovement : NetworkBehaviour
     {
         spriteRenderer = GetComponent<SpriteRenderer>(); // Get the SpriteRenderer
         animator = GetComponent<Animator>();
+
+        if (IsOwner) // Only apply the camera to the player that owns this object
+        {
+            cinemachineCam = FindObjectOfType<CinemachineVirtualCamera>();
+            if (cinemachineCam != null)
+            {
+                cinemachineCam.Follow = transform;  // Make the camera follow this player
+            }
+            else
+            {
+                Debug.LogError("Cinemachine Virtual Camera not found in the scene!");
+            }
+        }
     }
 
     // public override void OnNetworkSpawn()
