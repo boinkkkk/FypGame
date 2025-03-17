@@ -24,16 +24,16 @@ public class NewPlayerMovement : NetworkBehaviour
         animator = GetComponent<Animator>();
     }
 
-    public override void OnNetworkSpawn()
-    {
-        // spriteRenderer = GetComponent<SpriteRenderer>();
-        // animator = GetComponent<Animator>();
-        if (IsOwner) 
-        {
-            enabled = false;
-            return;
-        }
-    }
+    // public override void OnNetworkSpawn()
+    // {
+    //     // spriteRenderer = GetComponent<SpriteRenderer>();
+    //     // animator = GetComponent<Animator>();
+    //     if (IsOwner) 
+    //     {
+    //         enabled = false;
+    //         return;
+    //     }
+    // }
 
 
     // Update is called once per frame
