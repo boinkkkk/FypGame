@@ -18,11 +18,11 @@ public class NewPlayerMovement : NetworkBehaviour
 
     
     // Start is called before the first frame update
-    // void Start()
-    // {
-    //     spriteRenderer = GetComponent<SpriteRenderer>(); // Get the SpriteRenderer
-    //     animator = GetComponent<Animator>();
-    // }
+    void Start()
+    {
+        spriteRenderer = GetComponent<SpriteRenderer>(); // Get the SpriteRenderer
+        animator = GetComponent<Animator>();
+    }
 
     public override void OnNetworkSpawn()
     {
