@@ -16,10 +16,6 @@ public class NewPlayerMovement : NetworkBehaviour
     private SpriteRenderer spriteRenderer;
     Animator animator;
 
-    // Sync movement and jumping state
-    private NetworkVariable<bool> isWalking = new NetworkVariable<bool>();
-    private NetworkVariable<bool> isJumpingNetwork = new NetworkVariable<bool>();
-
     
     // Start is called before the first frame update
     void Start()
@@ -34,33 +30,36 @@ public class NewPlayerMovement : NetworkBehaviour
         if (!IsOwner) return; // Only the owner can control movement
 
         Move = Input.GetAxis("Horizontal");
-
         // Send movement input to the server
         MoveServerRpc(Move);
 
-        // rb.velocity = new Vector2( Move * speed, rb.velocity.y);
-        // if(Input.GetKeyDown(KeyCode.LeftShift)) {
-        //     animator.Play("WalkingAnim");
-        // }
+        rb.velocity = new Vector2( Move * speed, rb.velocity.y);
+        if(Input.GetKeyDown(KeyCode.LeftShift)) {
+            animator.Play("WalkingAnim");
+        }
 
-        // // Flip the sprite based on movement direction
-        // if (Move > 0) // Moving right
-        // {
-        //     spriteRenderer.flipX = false;
-        //     animator.SetBool("isWalking", true);
-        //     // animator.Play("WalkingState");
-        // }
-        // else if (Move < 0) // Moving left
-        // {
-        //     spriteRenderer.flipX = true;
-        //     animator.SetBool("isWalking", true);
-        // }
+        // Flip the sprite based on movement direction
+        if (Move > 0) // Moving right
+        {
+            spriteRenderer.flipX = false;
+            animator.SetBool("isWalking", true);
+            // animator.Play("WalkingState");
+        }
+        else if (Move < 0) // Moving left
+        {
+            spriteRenderer.flipX = true;
+            animator.SetBool("isWalking", true);
+        }
 
-        // else {
-        //     animator.SetBool("isWalking", false);
-        // }
+        else {
+            animator.SetBool("isWalking", false);
+        }
 
         
+        // if (Input.GetButtonDown("Jump") && isJumping == false) 
+        // {
+        //     rb.AddForce(Vector2.up * jump, ForceMode2D.Impulse);
+        // }
 
         // Handle Jumping
         if (Input.GetButtonDown("Jump") && !isJumping)
@@ -73,12 +72,9 @@ public class NewPlayerMovement : NetworkBehaviour
     [ServerRpc]
     void MoveServerRpc(float move)
     {
-        if (IsOwner) return;
-
         rb.velocity = new Vector2(move * speed, rb.velocity.y);
 
-        // Update NetworkVariable for all clients
-        isWalking.Value = (move != 0);
+        // Sync animation and sprite flipping across clients
         FlipClientRpc(move);
     }
 
@@ -89,9 +85,6 @@ public class NewPlayerMovement : NetworkBehaviour
         {
             rb.AddForce(Vector2.up * jump, ForceMode2D.Impulse);
             isJumping = true;
-
-            // Sync jumping state
-            isJumpingNetwork.Value = true;
         }
     }
 
@@ -108,10 +101,10 @@ public class NewPlayerMovement : NetworkBehaviour
             spriteRenderer.flipX = true;
             animator.SetBool("isWalking", true);
         }
-        // else
-        // {
-        //     animator.SetBool("isWalking", false);
-        // }
+        else
+        {
+            animator.SetBool("isWalking", false);
+        }
     }
 
     //  void FixedUpdate()
