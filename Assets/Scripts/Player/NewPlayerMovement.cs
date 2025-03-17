@@ -148,10 +148,16 @@ public class NewPlayerMovement : NetworkBehaviour
         // if player is NOT on the ground, means jumping
         if (other.gameObject.CompareTag("Ground")) 
         {
-            isJumping.Value = true;
+            RequestSetJumpingServerRpc(false);
+            // isJumping.Value = true;
         }
     }
 
+    [ServerRpc]
+    void RequestSetJumpingServerRpc(bool value)
+    {
+        isJumping.Value = value;
+    }
 
 // Uncomment here
     //     Move = Input.GetAxis("Horizontal");
