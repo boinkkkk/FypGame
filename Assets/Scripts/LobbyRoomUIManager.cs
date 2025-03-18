@@ -30,6 +30,10 @@ public class LobbyRoomUIManager : MonoBehaviour
 
     async void Start()
     {
+        currentSpriteIndex = 0;
+        PlayerPrefs.SetInt("PlayerSpriteIndex", currentSpriteIndex);
+        PlayerPrefs.Save();
+        
         startGameButton.gameObject.SetActive(false); //Hide StartGameButton initially
         // Get stored lobby code
         string lobbyCode = PlayerPrefs.GetString("LobbyCode", "No Code");
