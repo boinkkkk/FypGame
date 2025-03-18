@@ -162,6 +162,9 @@ public class LobbyRoomUIManager : MonoBehaviour
         currentSpriteIndex = (currentSpriteIndex + 1) % playerSprites.Count; // Cycle through sprites
         localPlayerImage.sprite = playerSprites[currentSpriteIndex];
 
+        PlayerPrefs.SetInt("PlayerSpriteIndex", currentSpriteIndex);
+        PlayerPrefs.Save();
+
         if (debounceToken != null)
         {
             debounceToken.Cancel(); // Cancel previous scheduled update
