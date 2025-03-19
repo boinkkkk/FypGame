@@ -54,7 +54,11 @@ public class PlayerDeath : NetworkBehaviour
     private void KillAllPlayersClientRpc(ClientRpcParams clientRpcParams = default)
     {
         Debug.Log("killing all players");
-        Die();
+        // Die();
+        foreach(var player in FindObjectsOfType<PlayerDeath>())
+        {
+            player.Die();
+        }
     }
 
     private void Die()
