@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 
-public class RedButtonActivation : NetworkBehaviour
+public class BlueButtonActivation : NetworkBehaviour
 {
     public GameObject TilemapToMove;
     public Vector3 newPosition;     // The target position for the YellowGround
@@ -36,10 +36,15 @@ public class RedButtonActivation : NetworkBehaviour
         if (collision.gameObject.CompareTag("Player") && !isButtonPressed.Value)
         {
             ActivateButtonServerRpc();
+        }
+    }
 
-            // // Trigger the state change animation
-            // animator.SetTrigger("ChangeState");
-            // MoveYellowGround();
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        // Check if the player steps on the object
+        if (collision.gameObject.CompareTag("Player") && isButtonPressed.Value)
+        {
+            DeactivateButtonServerRpc();
         }
     }
 
@@ -50,6 +55,16 @@ public class RedButtonActivation : NetworkBehaviour
         {
             isButtonPressed.Value = true; // Update network state
             MoveYellowGroundClientRpc(); // Call ClientRpc to update all clients
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void DeactivateButtonServerRpc()
+    {
+        if (IsServer)
+        {
+            isButtonPressed.Value = false; // Reset network state
+            ResetYellowGroundClientRpc();
         }
     }
 
@@ -70,6 +85,18 @@ public class RedButtonActivation : NetworkBehaviour
         
     }
 
+    [ClientRpc]
+    private void ResetYellowGroundClientRpc()
+    {
+        if (TilemapToMove != null)
+        {
+            Debug.Log("Resetting tilemap");
+            StartCoroutine(SmoothMove(TilemapToMove.transform, initialTilemapPosition, 1f));
+        }
+        animator.Play("ButtonUp"); // Reset animation (change to match your animation state)
+        Debug.Log("Button released!");
+    }
+
 
     // private void MoveYellowGround()
     // {
@@ -84,12 +111,12 @@ public class RedButtonActivation : NetworkBehaviour
     //     }
     // }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void ResetButtonServerRpc()
-    {
-        isButtonPressed.Value = false; // Reset state
-        ResetButtonClientRpc(); // Notify all clients
-    }
+    // [ServerRpc(RequireOwnership = false)]
+    // public void ResetButtonServerRpc()
+    // {
+    //     isButtonPressed.Value = false; // Reset state
+    //     ResetButtonClientRpc(); // Notify all clients
+    // }
 
     [ClientRpc]
     public void ResetButtonClientRpc()
