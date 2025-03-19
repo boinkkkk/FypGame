@@ -1,15 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
-public class RedButtonActivation : MonoBehaviour
+public class RedButtonActivation : NetworkBehaviour
 {
     public GameObject TilemapToMove;
     public Vector3 newPosition;     // The target position for the YellowGround
     private Vector3 initialTilemapPosition;  // Store the original position
     private bool isActivated = false; // Track if the button has been pressed
-
     Animator animator;
+    
+    // Network Variable to sync button state
+    private NetworkVariable<bool> isButtonPressed = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
     // Start is called before the first frame update
     void Start()
     {
@@ -29,13 +33,33 @@ public class RedButtonActivation : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         // Check if the player steps on the object
-        if (collision.gameObject.CompareTag("Player"))
+        if (collision.gameObject.CompareTag("Player") && isButtonPressed.Value)
         {
-            // Trigger the state change animation
-            animator.SetTrigger("ChangeState");
-            MoveYellowGround();
+            ActivateButtonServerRpc();
+
+            // // Trigger the state change animation
+            // animator.SetTrigger("ChangeState");
+            // MoveYellowGround();
         }
     }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void ActivateButtonServerRpc()
+    {
+        isButtonPressed.Value = true; // Update network state
+        MoveYellowGroundClientRpc(); // Call ClientRpc to update all clients
+    }
+
+    [ClientRpc]
+    private void MoveYellowGroundClientRpc()
+    {
+        if (TilemapToMove != null)
+        {
+            StartCoroutine(SmoothMove(TilemapToMove.transform, newPosition, 1f));
+        }
+        animator.SetTrigger("ChangeState");
+    }
+
 
      private void MoveYellowGround()
     {
@@ -50,7 +74,15 @@ public class RedButtonActivation : MonoBehaviour
         }
     }
 
-    public void ResetButton()
+    [ServerRpc(RequireOwnership = false)]
+    public void ResetButtonServerRpc()
+    {
+        isButtonPressed.Value = false; // Reset state
+        ResetButtonClientRpc(); // Notify all clients
+    }
+
+    [ClientRpc]
+    public void ResetButtonClientRpc()
     {
         isActivated = false; // Allow activation again
         if (TilemapToMove != null)

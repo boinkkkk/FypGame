@@ -103,10 +103,10 @@ public class PlayerDeath : NetworkBehaviour
         yield return new WaitForSeconds(0.5f); // Small delay to avoid instant death when respawning
         isRespawning = false;
 
-        // Reset the Red Button
-        if (redButton != null)
+       // Reset the Red Button for all players
+        if (IsServer && redButton != null)
         {
-            redButton.ResetButton();
+            redButton.ResetButtonServerRpc();
         }
     }
 
