@@ -97,6 +97,7 @@ public class PlayerDeath : NetworkBehaviour
         movementScript.enabled = true;  // Re-enable movement
         rb.gravityScale = 7;  // Restore gravity
 
+        yield return new WaitForSeconds(0.5f); // Small delay to avoid instant death
         isRespawning = false;
     }
 
