@@ -69,15 +69,20 @@ public class PlayerDeath : NetworkBehaviour
         isRespawning = false;
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    private void ResetSceneForAllPlayersServerRpc()
-    {
-        NetworkManager.Singleton.SceneManager.LoadScene("LevelSample", LoadSceneMode.Single);
-    }
+    // [ServerRpc(RequireOwnership = false)]
+    // private void ResetSceneForAllPlayersServerRpc()
+    // {
+    //     NetworkManager.Singleton.SceneManager.LoadScene("LevelSample", LoadSceneMode.Single);
 
-    private IEnumerator ResetSceneForAllPlayers()
-    {
-        yield return new WaitForSeconds(deathDelay);
-        ResetSceneForAllPlayersServerRpc();
-    }
+    //     // if (NetworkManager.Singleton.IsServer)
+    //     // {
+    //     //     NetworkManager.Singleton.SceneManager.LoadScene("LevelSample", LoadSceneMode.Single);
+    //     // }
+    // }
+
+    // private IEnumerator ResetSceneForAllPlayers()
+    // {
+    //     yield return new WaitForSeconds(deathDelay);
+    //     ResetSceneForAllPlayersServerRpc();
+    // }
 }
