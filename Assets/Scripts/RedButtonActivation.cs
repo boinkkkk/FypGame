@@ -33,7 +33,7 @@ public class RedButtonActivation : NetworkBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         // Check if the player steps on the object
-        if (collision.gameObject.CompareTag("Player") && isButtonPressed.Value)
+        if (collision.gameObject.CompareTag("Player") && !isButtonPressed.Value)
         {
             ActivateButtonServerRpc();
 
@@ -46,8 +46,11 @@ public class RedButtonActivation : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void ActivateButtonServerRpc()
     {
-        isButtonPressed.Value = true; // Update network state
-        MoveYellowGroundClientRpc(); // Call ClientRpc to update all clients
+        if(IsServer)
+        {
+            isButtonPressed.Value = true; // Update network state
+            MoveYellowGroundClientRpc(); // Call ClientRpc to update all clients
+        }
     }
 
     [ClientRpc]
@@ -55,9 +58,16 @@ public class RedButtonActivation : NetworkBehaviour
     {
         if (TilemapToMove != null)
         {
+            Debug.Log("moving tilemap");
             StartCoroutine(SmoothMove(TilemapToMove.transform, newPosition, 1f));
         }
+        else 
+        {
+            Debug.LogError("Tilemap reference is missing!");
+        }
         animator.SetTrigger("ChangeState");
+        Debug.Log("button pressed!");
+        
     }
 
 
