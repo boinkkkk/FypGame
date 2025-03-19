@@ -59,7 +59,7 @@ public class PlayerSpawner : NetworkBehaviour
         Debug.Log($"Lobby found: {currentLobby.Name} with {currentLobby.Players.Count} players.");
 
         // Spawn each player at a different position
-        Vector3[] spawnPositions = { new Vector3(-11, 0, 0), new Vector3(-10, 0, 0) };
+        Vector3[] spawnPositions = { new Vector3(-11, 0, 0), new Vector3(-9, 0, 0) };
         int index = 0;
 
         foreach (Player player in currentLobby.Players)
