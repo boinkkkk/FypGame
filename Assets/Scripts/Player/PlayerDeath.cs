@@ -37,7 +37,7 @@ public class PlayerDeath : NetworkBehaviour
         if (other.CompareTag("Enemy") && !isRespawning)
         {
             
-            Die();
+            NotifyDeathServerRpc();
         }
     }
 
@@ -45,14 +45,15 @@ public class PlayerDeath : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void NotifyDeathServerRpc()
     {
+        Debug.Log($"Server received death notification from {OwnerClientId}");
         KillAllPlayersClientRpc(); // Call ClientRpc to kill all players
     }
 
     // Make all players die
     [ClientRpc]
-    private void KillAllPlayersClientRpc()
+    private void KillAllPlayersClientRpc(ClientRpcParams clientRpcParams = default)
     {
-        Debug.Log("someone died");
+        Debug.Log("killing all players");
         Die();
     }
 
