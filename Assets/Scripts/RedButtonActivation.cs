@@ -6,11 +6,18 @@ public class RedButtonActivation : MonoBehaviour
 {
     public GameObject TilemapToMove;
     public Vector3 newPosition;     // The target position for the YellowGround
+    private Vector3 initialTilemapPosition;  // Store the original position
+    private bool isActivated = false; // Track if the button has been pressed
+
     Animator animator;
     // Start is called before the first frame update
     void Start()
     {
         animator = GetComponent<Animator>();
+        if(TilemapToMove != null)
+        {
+            initialTilemapPosition = TilemapToMove.transform.position;
+        }
     }
 
     // Update is called once per frame
@@ -32,8 +39,9 @@ public class RedButtonActivation : MonoBehaviour
 
      private void MoveYellowGround()
     {
-        if (TilemapToMove != null)
+        if (!isActivated && TilemapToMove != null)
         {
+            isActivated = true;
             StartCoroutine(SmoothMove(TilemapToMove.transform, newPosition, 1f)); // 1 second duration
         }
         else
@@ -41,6 +49,17 @@ public class RedButtonActivation : MonoBehaviour
             Debug.LogError("Tilemap reference is missing!");
         }
     }
+
+    public void ResetButton()
+    {
+        isActivated = false; // Allow activation again
+        if (TilemapToMove != null)
+        {
+            StartCoroutine(SmoothMove(TilemapToMove.transform, initialTilemapPosition, 1f)); // Move tilemap back
+        }
+        animator.Play("ButtonUp"); // Reset animation (change to match your animation state)
+    }
+
 
     private IEnumerator SmoothMove(Transform tilemapTransform, Vector3 targetPosition, float duration)
     {

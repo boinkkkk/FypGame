@@ -15,12 +15,15 @@ public class PlayerDeath : NetworkBehaviour
     private Animator animator;
     private float fallThreshold = -9f;
     private NewPlayerMovement movementScript;
+    private RedButtonActivation redButton;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         movementScript = GetComponent<NewPlayerMovement>();  // Reference the movement script
+
+        redButton = FindObjectOfType<RedButtonActivation>(); // Find the button in the scene
     }
 
     private void Update()
@@ -97,8 +100,14 @@ public class PlayerDeath : NetworkBehaviour
         movementScript.enabled = true;  // Re-enable movement
         rb.gravityScale = 7;  // Restore gravity
 
-        yield return new WaitForSeconds(0.5f); // Small delay to avoid instant death
+        yield return new WaitForSeconds(0.5f); // Small delay to avoid instant death when respawning
         isRespawning = false;
+
+        // Reset the Red Button
+        if (redButton != null)
+        {
+            redButton.ResetButton();
+        }
     }
 
     // [ServerRpc(RequireOwnership = false)]
