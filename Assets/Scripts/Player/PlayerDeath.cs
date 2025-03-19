@@ -52,6 +52,7 @@ public class PlayerDeath : NetworkBehaviour
     [ClientRpc]
     private void KillAllPlayersClientRpc()
     {
+        Debug.Log("someone died");
         Die();
     }
 
