@@ -6,7 +6,7 @@ using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
 using System.Threading.Tasks;
 
-public class PlayerDeath : NetworkBehaviour
+public class PlayerDeathTest : NetworkBehaviour
 {
     public Rigidbody2D rb;
     public GameObject respawnPoint; // Set this in Unity
@@ -14,21 +14,20 @@ public class PlayerDeath : NetworkBehaviour
     private bool isRespawning = false;
     private Animator animator;
     private float fallThreshold = -9f;
-    private NewPlayerMovement movementScript;
+    private greyPlayerMovement movementScript;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
-        movementScript = GetComponent<NewPlayerMovement>();  // Reference the movement script
+        movementScript = GetComponent<greyPlayerMovement>();  // Reference the movement script
     }
 
     private void Update()
     {
         if(transform.position.y < fallThreshold && !isRespawning)
         {
-            NotifyDeathServerRpc();
-            // Die();
+            Die();
         }
     }
 
@@ -36,23 +35,8 @@ public class PlayerDeath : NetworkBehaviour
     {
         if (other.CompareTag("Enemy") && !isRespawning)
         {
-            
             Die();
         }
-    }
-
-    // Notify server that a player has died
-    [ServerRpc(RequireOwnership = false)]
-    private void NotifyDeathServerRpc()
-    {
-        KillAllPlayersClientRpc(); // Call ClientRpc to kill all players
-    }
-
-    // Make all players die
-    [ClientRpc]
-    private void KillAllPlayersClientRpc()
-    {
-        Die();
     }
 
     private void Die()
