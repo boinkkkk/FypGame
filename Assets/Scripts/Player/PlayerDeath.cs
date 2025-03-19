@@ -13,6 +13,7 @@ public class PlayerDeath : NetworkBehaviour
     public float deathDelay = 1.5f;
     private bool isRespawning = false;
     private Animator animator;
+    private float fallThreshold = -9f;
     private NewPlayerMovement movementScript;
 
     private void Start()
@@ -20,6 +21,14 @@ public class PlayerDeath : NetworkBehaviour
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         movementScript = GetComponent<NewPlayerMovement>();  // Reference the movement script
+    }
+
+    private void Update()
+    {
+        if(transform.position.y < fallThreshold && !isRespawning)
+        {
+            Die();
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
