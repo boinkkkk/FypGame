@@ -13,7 +13,7 @@ public class PlayerDeath : NetworkBehaviour
     public float deathDelay = 1.5f;
     private bool isRespawning = false;
     private Animator animator;
-    private float fallThreshold = -9f;
+    private float fallThreshold = -12f;
     private NewPlayerMovement movementScript;
     private RedButtonActivation redButton;
 

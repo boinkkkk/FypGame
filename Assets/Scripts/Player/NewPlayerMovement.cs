@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Unity.Netcode;
 using Cinemachine;
+using Unity.Services.Lobbies.Models;
 
 public class NewPlayerMovement : NetworkBehaviour
 {
