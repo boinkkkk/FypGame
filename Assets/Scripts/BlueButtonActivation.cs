@@ -27,7 +27,10 @@ public class BlueButtonActivation : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        // if (animator != null)
+        // {
+        //     animator.SetBool("IsPressed", isButtonPressed.Value);
+        // }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
