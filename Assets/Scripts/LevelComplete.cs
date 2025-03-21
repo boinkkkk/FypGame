@@ -11,18 +11,16 @@ public class LevelComplete : NetworkBehaviour
     [SerializeField] GameObject CongratsPanel;
     [SerializeField] Button testButton;
     [SerializeField] Button closeButton;
+    [SerializeField] GameObject StarFragment;
 
     // Start is called before the first frame update
     void Start()
     {
         CongratsPanel.SetActive(false);
 
+        testButton.onClick.AddListener(OnTestButtonClicked);
+        closeButton.onClick.AddListener(OnCloseButtonClicked);
         
-            testButton.onClick.AddListener(OnTestButtonClicked);
-            closeButton.onClick.AddListener(OnCloseButtonClicked);
-        
-
-    
     }
 
     // Update is called once per frame
@@ -56,6 +54,23 @@ public class LevelComplete : NetworkBehaviour
         {
             // If a client clicks, request the server to show the UI
             RequestCloseUiServerRpc();
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.gameObject.CompareTag("StarFragment")) // Ensure the tag matches
+        {
+            if (IsServer)
+            {
+                ShowUiClientRpc(); // Host can directly trigger UI
+            }
+            else
+            {
+                RequestShowUiServerRpc(); // Client requests server to trigger UI
+            }
+
+            Destroy(other.gameObject); // Destroy the star fragment after collection
         }
     }
 
