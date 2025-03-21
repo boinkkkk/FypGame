@@ -17,11 +17,10 @@ public class LevelComplete : NetworkBehaviour
     {
         CongratsPanel.SetActive(false);
 
-        if (IsOwner)
-        {
+        
             testButton.onClick.AddListener(OnTestButtonClicked);
             closeButton.onClick.AddListener(OnCloseButtonClicked);
-        }
+        
 
     
     }
