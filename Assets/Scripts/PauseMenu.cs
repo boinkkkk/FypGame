@@ -6,19 +6,19 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Unity.Netcode;
 
-public class LevelComplete : NetworkBehaviour
+public class PauseMenu : NetworkBehaviour
 {
     [SerializeField] GameObject CongratsPanel;
-    // [SerializeField] Button testButton;
+    [SerializeField] Button testButton;
     [SerializeField] Button closeButton;
-    // [SerializeField] GameObject StarFragment;
+    [SerializeField] GameObject StarFragment;
 
     // Start is called before the first frame update
     void Start()
     {
         CongratsPanel.SetActive(false);
 
-        // testButton.onClick.AddListener(OnTestButtonClicked);
+        testButton.onClick.AddListener(OnTestButtonClicked);
         closeButton.onClick.AddListener(OnCloseButtonClicked);
         
     }
@@ -30,19 +30,19 @@ public class LevelComplete : NetworkBehaviour
     }
 
     // Called when the test button is clicked
-    // private void OnTestButtonClicked()
-    // {
-    //     if (IsServer)
-    //     {
-    //         // If the host clicks, directly show UI on all clients
-    //         ShowUiClientRpc();
-    //     }
-    //     else
-    //     {
-    //         // If a client clicks, request the server to show the UI
-    //         RequestShowUiServerRpc();
-    //     }
-    // }
+    private void OnTestButtonClicked()
+    {
+        if (IsServer)
+        {
+            // If the host clicks, directly show UI on all clients
+            ShowUiClientRpc();
+        }
+        else
+        {
+            // If a client clicks, request the server to show the UI
+            RequestShowUiServerRpc();
+        }
+    }
     private void OnCloseButtonClicked()
     {
         if (IsServer)
@@ -57,21 +57,22 @@ public class LevelComplete : NetworkBehaviour
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.gameObject.CompareTag("Player"))
-        {
-            if (IsServer)
-            {
-                ShowUiClientRpc(); // Host can directly trigger UI
-            }
-            else
-            {
-                RequestShowUiServerRpc(); // Client requests server to trigger UI
-            }
+    // private void OnTriggerEnter2D(Collider2D other)
+    // {
+    //     if (other.gameObject.CompareTag("StarFragment")) // Ensure the tag matches
+    //     {
+    //         if (IsServer)
+    //         {
+    //             ShowUiClientRpc(); // Host can directly trigger UI
+    //         }
+    //         else
+    //         {
+    //             RequestShowUiServerRpc(); // Client requests server to trigger UI
+    //         }
 
-        }
-    }
+    //         Destroy(other.gameObject); // Destroy the star fragment after collection
+    //     }
+    // }
 
     [ServerRpc(RequireOwnership = false)]
     private void RequestShowUiServerRpc()

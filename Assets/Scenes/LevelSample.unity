@@ -1537,7 +1537,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 567098405}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2ca42f995e3bbfc42a889a2f48349819, type: 3}
   m_Name: 
@@ -1545,6 +1545,7 @@ MonoBehaviour:
   CongratsPanel: {fileID: 567098405}
   testButton: {fileID: 1983052720}
   closeButton: {fileID: 2145632849}
+  StarFragment: {fileID: 0}
 --- !u!114 &567098410
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6298,11 +6299,11 @@ GameObject:
   - component: {fileID: 1759023406}
   - component: {fileID: 1759023405}
   - component: {fileID: 1759023404}
-  - component: {fileID: 1759023408}
   - component: {fileID: 1759023407}
+  - component: {fileID: 1759023408}
   m_Layer: 0
   m_Name: StarFragment
-  m_TagString: Untagged
+  m_TagString: StarFragment
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -6449,12 +6450,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1759023403}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2ca42f995e3bbfc42a889a2f48349819, type: 3}
+  m_Script: {fileID: 11500000, guid: d9662c6d5fa518244ac6d0d418169130, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CongratsPanel: {fileID: 0}
-  testButton: {fileID: 0}
-  closeButton: {fileID: 0}
+  CongratsPanel: {fileID: 567098405}
+  closeButton: {fileID: 2145632849}
 --- !u!1 &1769697430
 GameObject:
   m_ObjectHideFlags: 0

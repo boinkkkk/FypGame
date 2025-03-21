@@ -54,11 +54,11 @@ public class BlueButtonActivation : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void ActivateButtonServerRpc()
     {
-        if(IsServer)
-        {
+        // if(IsServer)
+        // {
             isButtonPressed.Value = true; // Update network state
             MoveYellowGroundClientRpc(); // Call ClientRpc to update all clients
-        }
+        // }
     }
 
     [ServerRpc(RequireOwnership = false)]
