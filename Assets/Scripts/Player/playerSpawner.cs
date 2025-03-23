@@ -5,23 +5,92 @@ using Unity.Services.Authentication;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
 using System.Threading.Tasks;
+using UnityEngine.SceneManagement; 
 
 public class PlayerSpawner : NetworkBehaviour
 {
     public GameObject playerPrefab; // Assign in Unity Inspector
     private Lobby currentLobby;
+    private bool playersSpawned = false;  // Add this flag to track if players are already spawned
 
     public override void OnNetworkSpawn()
     {
         if (IsServer)
         {
             SpawnPlayers();
+            // StartCoroutine(SpawnPlayersAfterSceneLoad());
+            playersSpawned = true;  // Set the flag so players don't spawn again
         }
     }
 
+    private IEnumerator SpawnPlayersAfterSceneLoad()
+    {
+        yield return new WaitForSeconds(1); // Give time for the scene to load
+
+        SpawnPlayers();
+    }
+
+    // private async void SpawnPlayers()
+    // {
+    //     // Check if the lobby code exists
+    //     string lobbyCode = PlayerPrefs.GetString("LobbyCode");
+        
+    //     if (string.IsNullOrEmpty(lobbyCode))
+    //     {
+    //         Debug.LogError("Lobby code is missing in PlayerPrefs.");
+    //         return;
+    //     }
+
+    //     // Fetch the lobby data using QueryLobbiesAsync
+    //     QueryResponse response = await Lobbies.Instance.QueryLobbiesAsync();
+
+    //     // Debug: Log the number of lobbies fetched
+    //     Debug.Log($"Number of lobbies fetched: {response.Results.Count}");
+
+    //     bool lobbyFound = false;
+
+    //     // Search through the lobbies to find the matching one
+    //     foreach (Lobby lobby in response.Results)
+    //     {
+    //         if (lobby.LobbyCode == lobbyCode)
+    //         {
+    //             currentLobby = lobby;
+    //             lobbyFound = true;
+    //             break;
+    //         }
+    //     }
+
+    //     if (!lobbyFound)
+    //     {
+    //         Debug.LogError($"Lobby with code {lobbyCode} not found!");
+    //         return;
+    //     }
+
+    //     // Debug: Confirm lobby found
+    //     Debug.Log($"Lobby found: {currentLobby.Name} with {currentLobby.Players.Count} players.");
+
+    //     // Spawn each player at a different position
+    //     Vector3[] spawnPositions = { new Vector3(-11, 0, 0), new Vector3(-9, 0, 0) };
+    //     int index = 0;
+
+    //     foreach (Player player in currentLobby.Players)
+    //     {
+    //         GameObject newPlayer = Instantiate(playerPrefab, spawnPositions[index], Quaternion.identity);
+    //         NetworkObject networkObject = newPlayer.GetComponent<NetworkObject>();
+
+    //         // // Assign ownership correctly using Netcode client IDs
+    //         // ulong clientId = (ulong)index;  // TEMP FIX: Assign IDs sequentially (not ideal for multi-client)
+
+    //         // Get the correct Client ID from Netcode
+    //         ulong clientId = NetworkManager.Singleton.ConnectedClientsList[index].ClientId;
+    //         networkObject.SpawnAsPlayerObject(clientId);
+
+    //         index++;
+    //     }
+    // }
+
     private async void SpawnPlayers()
     {
-        // Check if the lobby code exists
         string lobbyCode = PlayerPrefs.GetString("LobbyCode");
         
         if (string.IsNullOrEmpty(lobbyCode))
@@ -30,15 +99,9 @@ public class PlayerSpawner : NetworkBehaviour
             return;
         }
 
-        // Fetch the lobby data using QueryLobbiesAsync
         QueryResponse response = await Lobbies.Instance.QueryLobbiesAsync();
-
-        // Debug: Log the number of lobbies fetched
-        Debug.Log($"Number of lobbies fetched: {response.Results.Count}");
-
         bool lobbyFound = false;
 
-        // Search through the lobbies to find the matching one
         foreach (Lobby lobby in response.Results)
         {
             if (lobby.LobbyCode == lobbyCode)
@@ -55,28 +118,38 @@ public class PlayerSpawner : NetworkBehaviour
             return;
         }
 
-        // Debug: Confirm lobby found
         Debug.Log($"Lobby found: {currentLobby.Name} with {currentLobby.Players.Count} players.");
 
-        // Spawn each player at a different position
         Vector3[] spawnPositions = { new Vector3(-11, 0, 0), new Vector3(-9, 0, 0) };
         int index = 0;
 
-        foreach (Player player in currentLobby.Players)
+        foreach (Player lobbyPlayer in currentLobby.Players)
         {
+            ulong clientId = NetworkManager.Singleton.ConnectedClientsList[index].ClientId;
+
+            // **Check if the player already exists**
+            foreach (var client in NetworkManager.Singleton.ConnectedClients.Values)
+            {
+                if (client.PlayerObject != null && client.PlayerObject.IsSpawned)
+                {
+                    Debug.Log($"Player {clientId} already exists, skipping spawn.");
+                    index++;
+                    return;
+                }
+            }
+
+            // **Spawn player only if it doesn’t already exist**
             GameObject newPlayer = Instantiate(playerPrefab, spawnPositions[index], Quaternion.identity);
             NetworkObject networkObject = newPlayer.GetComponent<NetworkObject>();
-
-            // // Assign ownership correctly using Netcode client IDs
-            // ulong clientId = (ulong)index;  // TEMP FIX: Assign IDs sequentially (not ideal for multi-client)
-
-            // Get the correct Client ID from Netcode
-            ulong clientId = NetworkManager.Singleton.ConnectedClientsList[index].ClientId;
             networkObject.SpawnAsPlayerObject(clientId);
+
+            // Make sure player persists across scenes
+            DontDestroyOnLoad(newPlayer);
 
             index++;
         }
     }
+
 
     public void RespawnPlayer(GameObject player)
     {
@@ -148,4 +221,47 @@ public class PlayerSpawner : NetworkBehaviour
         // Optionally, you could trigger any animation or other effects here
         Debug.Log("Player respawned at position: " + respawnPosition);
     }
+
+    public void LoadNextScene()
+    {
+        if (IsServer) // Only the server should load the scene
+        {
+            // foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+            // {
+            //     if (client.PlayerObject != null)
+            //     {
+            //         client.PlayerObject.Despawn(true);
+            //     }
+            // }
+
+            NetworkManager.Singleton.SceneManager.LoadScene("LevelSample2", LoadSceneMode.Single);
+            // Wait for the scene to be fully loaded before proceeding
+            // StartCoroutine(WaitForSceneToLoadAndSpawnNewPlayer());
+        }
+    }
+
+    // private IEnumerator WaitForSceneToLoadAndSpawnNewPlayer()
+    // {
+    //     // Wait until the new scene is fully loaded
+    //     yield return new WaitUntil(() => SceneManager.GetActiveScene().name == "LevelSample2");
+
+    //     // Spawn the new player once the scene is loaded
+    //     // SpawnPlayers();
+
+    //     // Once the new player is spawned, despawn the old player
+    //     DespawnPreviousPlayer();
+    // }
+
+    // private void DespawnPreviousPlayer()
+    // {
+    //     // Despawn the previous player after the new player is spawned
+    //     foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+    //     {
+    //         Debug.Log ("Despawning prev player");
+    //         if (client.PlayerObject != null)
+    //         {
+    //             client.PlayerObject.Despawn(true);
+    //         }
+    //     }
+    // }
 }
