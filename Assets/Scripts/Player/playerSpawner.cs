@@ -15,7 +15,7 @@ public class PlayerSpawner : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        if (IsServer)
+        if (IsServer && !playersSpawned)
         {
             SpawnPlayers();
             // StartCoroutine(SpawnPlayersAfterSceneLoad());
@@ -121,33 +121,61 @@ public class PlayerSpawner : NetworkBehaviour
         Debug.Log($"Lobby found: {currentLobby.Name} with {currentLobby.Players.Count} players.");
 
         Vector3[] spawnPositions = { new Vector3(-11, 0, 0), new Vector3(-9, 0, 0) };
+        
         int index = 0;
 
-        foreach (Player lobbyPlayer in currentLobby.Players)
+        // foreach (Player lobbyPlayer in currentLobby.Players)
+        // {
+        //     ulong clientId = NetworkManager.Singleton.ConnectedClientsList[index].ClientId;
+
+        //     // **Check if the player already exists**
+        //     foreach (var client in NetworkManager.Singleton.ConnectedClients.Values)
+        //     {
+        //         if (client.PlayerObject != null && client.PlayerObject.IsSpawned)
+        //         {
+        //             Debug.Log($"Player {clientId} already exists, skipping spawn.");
+        //             index++;
+        //             return;
+        //         }
+        //     }
+
+        //     // **Spawn player only if it doesn’t already exist**
+        //     GameObject newPlayer = Instantiate(playerPrefab, spawnPositions[index], Quaternion.identity);
+        //     NetworkObject networkObject = newPlayer.GetComponent<NetworkObject>();
+        //     networkObject.SpawnAsPlayerObject(clientId);
+
+        //     // Make sure player persists across scenes
+        //     DontDestroyOnLoad(newPlayer);
+
+        //     index++;
+        // }
+        foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
         {
-            ulong clientId = NetworkManager.Singleton.ConnectedClientsList[index].ClientId;
+            if (index >= 2) break; // Limit to one host and one client
 
-            // **Check if the player already exists**
-            foreach (var client in NetworkManager.Singleton.ConnectedClients.Values)
+            ulong clientId = client.ClientId;
+            if (!IsPlayerAlreadySpawned(clientId))
             {
-                if (client.PlayerObject != null && client.PlayerObject.IsSpawned)
-                {
-                    Debug.Log($"Player {clientId} already exists, skipping spawn.");
-                    index++;
-                    return;
-                }
+                GameObject newPlayer = Instantiate(playerPrefab, spawnPositions[index], Quaternion.identity);
+                NetworkObject networkObject = newPlayer.GetComponent<NetworkObject>();
+                networkObject.SpawnAsPlayerObject(clientId);
+                DontDestroyOnLoad(newPlayer);
+                index++;
             }
-
-            // **Spawn player only if it doesn’t already exist**
-            GameObject newPlayer = Instantiate(playerPrefab, spawnPositions[index], Quaternion.identity);
-            NetworkObject networkObject = newPlayer.GetComponent<NetworkObject>();
-            networkObject.SpawnAsPlayerObject(clientId);
-
-            // Make sure player persists across scenes
-            DontDestroyOnLoad(newPlayer);
-
-            index++;
         }
+    }
+
+    private bool IsPlayerAlreadySpawned(ulong clientId)
+    {
+        foreach (var client in NetworkManager.Singleton.ConnectedClients.Values)
+        {
+            if (client.PlayerObject != null && client.PlayerObject.IsSpawned && client.ClientId == clientId)
+            {
+                Debug.Log($"Player {clientId} already spawned.");
+                return true;
+            }
+        }
+        return false;
     }
 
 
