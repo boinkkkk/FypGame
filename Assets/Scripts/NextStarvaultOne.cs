@@ -4,7 +4,7 @@ using Unity.Netcode;
 
 public class NextStarvaultOne : NetworkBehaviour
 {
-    public string lobbyCode; // Set this from the Game Manager or UI
+    // public string lobbyCode; // Set this from the Game Manager or UI
 
     public void OnLevelComplete()
     {

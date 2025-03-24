@@ -7,7 +7,7 @@ using Unity.Services.Lobbies.Models;
 using System.Threading.Tasks;
 using UnityEngine.SceneManagement; 
 
-public class PlayerSpawner : NetworkBehaviour
+public class NextPlayerSpawner : NetworkBehaviour
 {
     public GameObject playerPrefab; // Assign in Unity Inspector
     private Lobby currentLobby;
@@ -51,12 +51,12 @@ public class PlayerSpawner : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        if (IsServer && !playersSpawned)
-        {
-            SpawnPlayers();
-            // StartCoroutine(SpawnPlayersAfterSceneLoad());
-            playersSpawned = true;  // Set the flag so players don't spawn again
-        }
+        // if (IsServer && !playersSpawned)
+        // {
+        //     SpawnPlayers();
+        //     // StartCoroutine(SpawnPlayersAfterSceneLoad());
+        //     playersSpawned = true;  // Set the flag so players don't spawn again
+        // }
     }
 
     private IEnumerator SpawnPlayersAfterSceneLoad()
@@ -155,11 +155,11 @@ public class PlayerSpawner : NetworkBehaviour
 
         if (!lobbyFound)
         {
-            // Debug.LogError($"Lobby with code {lobbyCode} not found!");
-            // return;
+            Debug.LogError($"Lobby with code {lobbyCode} not found!");
+            return;
         }
 
-        // Debug.Log($"Lobby found: {currentLobby.Name} with {currentLobby.Players.Count} players.");
+        Debug.Log($"Lobby found: {currentLobby.Name} with {currentLobby.Players.Count} players.");
 
         Vector3[] spawnPositions = { new Vector3(-11, 0, 0), new Vector3(-9, 0, 0) };
         

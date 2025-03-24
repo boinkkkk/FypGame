@@ -72,7 +72,9 @@ public class MultiplayerLobbyManager : MonoBehaviour
             string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
             
             
-            storedJoinCode = joinCode;
+            // storedJoinCode = joinCode;
+            // PlayerPrefs.SetString("JoinCode", storedJoinCode); // Save it to PlayerPrefs
+            // PlayerPrefs.Save(); // Ensure it's saved immediately
 
             // Create Lobby
             var options = new CreateLobbyOptions

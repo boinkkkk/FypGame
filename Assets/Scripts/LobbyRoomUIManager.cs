@@ -30,6 +30,18 @@ public class LobbyRoomUIManager : MonoBehaviour
 
     async void Start()
     {
+        // string joinCode = PlayerPrefs.GetString("JoinCode");
+        // if (!string.IsNullOrEmpty(joinCode))
+        // {
+        //     Debug.Log("Retrieved Join Code: " + joinCode);
+        //     // Use the joinCode as needed
+        // }
+        // else
+        // {
+        //     Debug.LogError("Join Code not found!");
+        // }
+
+
         currentSpriteIndex = 0;
         PlayerPrefs.SetInt("PlayerSpriteIndex", currentSpriteIndex);
         PlayerPrefs.Save();
@@ -86,6 +98,8 @@ public class LobbyRoomUIManager : MonoBehaviour
             }
 
             lobbyId = currentLobby.Id;
+            // PlayerPrefs.SetString("LobbyId", lobbyId);  // Save the lobbyId
+            // PlayerPrefs.Save();  // Save the data immediately
             UpdatePlayerUI();
         }
         catch (LobbyServiceException e)
