@@ -309,6 +309,24 @@ public class PlayerSpawner : NetworkBehaviour
         }
     }
 
+    public void LoadNextScene2()
+    {
+        if (IsServer) // Only the server should load the scene
+        {
+            // foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+            // {
+            //     if (client.PlayerObject != null)
+            //     {
+            //         client.PlayerObject.Despawn(true);
+            //     }
+            // }
+
+            NetworkManager.Singleton.SceneManager.LoadScene("LevelSample3", LoadSceneMode.Single);
+            // Wait for the scene to be fully loaded before proceeding
+            // StartCoroutine(WaitForSceneToLoadAndSpawnNewPlayer());
+        }
+    }
+
     // private IEnumerator WaitForSceneToLoadAndSpawnNewPlayer()
     // {
     //     // Wait until the new scene is fully loaded
