@@ -190,17 +190,60 @@ public class PlayerSpawner : NetworkBehaviour
 
         //     index++;
         // }
+
+
+        // foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+        // {
+        //     if (index >= 2) break; // Limit to one host and one client
+
+        //     ulong clientId = client.ClientId;
+        //     if (!IsPlayerAlreadySpawned(clientId))
+        //     {
+        //         GameObject newPlayer = Instantiate(playerPrefab, spawnPositions[index], Quaternion.identity);
+        //         NetworkObject networkObject = newPlayer.GetComponent<NetworkObject>();
+        //         networkObject.SpawnAsPlayerObject(clientId);
+        //         DontDestroyOnLoad(newPlayer);
+        //         index++;
+        //     }
+        // }
+        
+        GameObject GetPlayerObject(ulong clientId)
+        {
+            foreach (var networkObject in FindObjectsOfType<NetworkObject>())
+            {
+                if (networkObject.OwnerClientId == clientId) // Check ownership
+                {
+                    return networkObject.gameObject; // Return the player's GameObject
+                }
+            }
+            return null; // Return null if the player is not found
+        }
+
+
         foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
         {
-            if (index >= 2) break; // Limit to one host and one client
-
             ulong clientId = client.ClientId;
-            if (!IsPlayerAlreadySpawned(clientId))
+
+            if (index < 2) // Only process up to two players
             {
-                GameObject newPlayer = Instantiate(playerPrefab, spawnPositions[index], Quaternion.identity);
-                NetworkObject networkObject = newPlayer.GetComponent<NetworkObject>();
-                networkObject.SpawnAsPlayerObject(clientId);
-                DontDestroyOnLoad(newPlayer);
+                if (IsPlayerAlreadySpawned(clientId))
+                {
+                    // If player exists, relocate them
+                    GameObject existingPlayer = GetPlayerObject(clientId);
+                    if (existingPlayer != null)
+                    {
+                        existingPlayer.transform.position = spawnPositions[index];
+                    }
+                }
+                else
+                {
+                    // Spawn new player
+                    GameObject newPlayer = Instantiate(playerPrefab, spawnPositions[index], Quaternion.identity);
+                    NetworkObject networkObject = newPlayer.GetComponent<NetworkObject>();
+                    networkObject.SpawnAsPlayerObject(clientId);
+                    DontDestroyOnLoad(newPlayer);
+                }
+
                 index++;
             }
         }

@@ -13,8 +13,6 @@ public class LevelComplete : NetworkBehaviour
     [SerializeField] Button closeButton;
     // [SerializeField] GameObject StarFragment;
 
-    private int playersInZone = 0; // Tracks the number of players inside
-
     // Start is called before the first frame update
     void Start()
     {
@@ -61,37 +59,17 @@ public class LevelComplete : NetworkBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.CompareTag("Player") && other.TryGetComponent(out NetworkObject netObj))
+        if (other.gameObject.CompareTag("Player"))
         {
             if (IsServer)
             {
-                playersInZone++;
-
-                if (playersInZone >= 2)
-                {
-                    ShowUiClientRpc(); // Host can directly trigger UI
-                }
-                
+                ShowUiClientRpc(); // Host can directly trigger UI
             }
             else
             {
                 RequestShowUiServerRpc(); // Client requests server to trigger UI
             }
 
-        }
-    }
-
-    private void OnTriggerExit2D(Collider2D other)
-    {
-        if (other.gameObject.CompareTag("Player") && other.TryGetComponent(out NetworkObject netObj))
-        {
-            if (IsServer)
-            {
-                playersInZone--;
-
-                // Prevent negative values
-                playersInZone = Mathf.Max(0, playersInZone);
-            }
         }
     }
 
