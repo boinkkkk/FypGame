@@ -11,6 +11,7 @@ public class LevelComplete : NetworkBehaviour
     [SerializeField] GameObject CongratsPanel;
     // [SerializeField] Button testButton;
     [SerializeField] Button closeButton;
+    private int playersInTrigger = 0; // Track the number of players inside the trigger
     // [SerializeField] GameObject StarFragment;
 
     // Start is called before the first frame update
@@ -59,17 +60,41 @@ public class LevelComplete : NetworkBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        // if (other.gameObject.CompareTag("Player"))
+        // {
+        //     if (IsServer)
+        //     {
+        //         ShowUiClientRpc(); // Host can directly trigger UI
+        //     }
+        //     else
+        //     {
+        //         RequestShowUiServerRpc(); // Client requests server to trigger UI
+        //     }
+
+        // }
+        if (other.gameObject.CompareTag("Player"))
+            {
+                playersInTrigger++; // Increase count when a player enters
+
+                if (playersInTrigger >= 2) // Ensure two players are inside
+                {
+                    if (IsServer)
+                    {
+                        ShowUiClientRpc(); // Host triggers UI for all clients
+                    }
+                    else
+                    {
+                        RequestShowUiServerRpc(); // Client requests the server to trigger UI
+                    }
+                }
+            }
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
         if (other.gameObject.CompareTag("Player"))
         {
-            if (IsServer)
-            {
-                ShowUiClientRpc(); // Host can directly trigger UI
-            }
-            else
-            {
-                RequestShowUiServerRpc(); // Client requests server to trigger UI
-            }
-
+            playersInTrigger--; // Decrease count when a player leaves
         }
     }
 
