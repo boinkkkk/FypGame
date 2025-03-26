@@ -29,7 +29,7 @@ public class MultiplayerLobbyManager : MonoBehaviour
     private UnityTransport transport;
     private Lobby connectedLobby;
     private List<string> playerNames = new List<string>();
-    private const int MaxPlayers = 5; // Change this as needed
+    private const int MaxPlayers = 2; // Change this as needed
     private string storedJoinCode;
     
 
@@ -185,8 +185,6 @@ public class MultiplayerLobbyManager : MonoBehaviour
 
             // SWITCH TO LOBBY ROOM UI and show code 
             roomCodeText.text = $"Room Code: {connectedLobby.LobbyCode}"; // Show room code in UI
-            lobbyUI.SetActive(false);  
-            lobbyRoomUI.SetActive(true);  
 
             // Store the lobby code before changing the scene
             PlayerPrefs.SetString("LobbyCode", connectedLobby.LobbyCode);
