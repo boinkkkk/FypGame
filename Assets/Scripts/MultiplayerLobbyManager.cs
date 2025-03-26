@@ -29,7 +29,6 @@ public class MultiplayerLobbyManager : MonoBehaviour
     private UnityTransport transport;
     private Lobby connectedLobby;
     private List<string> playerNames = new List<string>();
-    private bool isPollingActive = false;
     private const int MaxPlayers = 5; // Change this as needed
     private string storedJoinCode;
     
@@ -38,7 +37,7 @@ public class MultiplayerLobbyManager : MonoBehaviour
     {
         // Ensure the correct UI is active at start
         lobbyUI.SetActive(true);   // Show Lobby UI
-        lobbyRoomUI.SetActive(false); // Hide Lobby Room UI
+        
 
         transport = FindObjectOfType<UnityTransport>(); 
         await AuthenticateUser();
@@ -62,9 +61,6 @@ public class MultiplayerLobbyManager : MonoBehaviour
     // 🔹 Create a lobby and generate a room code
     public async void CreateLobby()
     {
-        lobbyUI.SetActive(true); // Hide UI while creating
-        
-
         try
         {
             // Create Relay Allocation
@@ -99,13 +95,7 @@ public class MultiplayerLobbyManager : MonoBehaviour
             Debug.Log("Lobby Created with Code: " + joinCode);
 
             await GetLobbyPlayerCount(connectedLobby.Id);
-            // Start polling player count every 30 seconds
-            // StartCoroutine(UpdateLobbyPlayerCountRoutine());
 
-
-            // SWITCH TO LOBBY ROOM UI  
-            lobbyUI.SetActive(false);  
-            lobbyRoomUI.SetActive(true);  
 
             // SHOW PLAYERS IN LOBBY  
             UpdateLobbyUI(connectedLobby);
