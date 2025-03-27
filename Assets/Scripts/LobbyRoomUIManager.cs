@@ -394,7 +394,7 @@ public class LobbyRoomUIManager : MonoBehaviour
             });
 
             Debug.Log("🎮 Game started! Notifying all players...");
-            NetworkManager.Singleton.SceneManager.LoadScene("LevelSample", LoadSceneMode.Single);
+            NetworkManager.Singleton.SceneManager.LoadScene("Level1", LoadSceneMode.Single);
         }
         catch (LobbyServiceException e)
         {
@@ -433,7 +433,7 @@ public class LobbyRoomUIManager : MonoBehaviour
         Debug.Log("All players are ready! Loading game...");
         PlayerPrefs.SetInt("PlayerSpriteIndex", currentSpriteIndex);
         PlayerPrefs.Save();
-        SceneManager.LoadScene("LevelSample"); // Change to your actual game scene
+        SceneManager.LoadScene("Level1"); 
     }
 
 

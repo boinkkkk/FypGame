@@ -346,7 +346,7 @@ public class PlayerSpawner : NetworkBehaviour
             //     }
             // }
 
-            NetworkManager.Singleton.SceneManager.LoadScene("LevelSample2", LoadSceneMode.Single);
+            NetworkManager.Singleton.SceneManager.LoadScene("Level2", LoadSceneMode.Single);
             // Wait for the scene to be fully loaded before proceeding
             // StartCoroutine(WaitForSceneToLoadAndSpawnNewPlayer());
         }
@@ -364,7 +364,7 @@ public class PlayerSpawner : NetworkBehaviour
             //     }
             // }
 
-            NetworkManager.Singleton.SceneManager.LoadScene("LevelSample3", LoadSceneMode.Single);
+            NetworkManager.Singleton.SceneManager.LoadScene("Level3", LoadSceneMode.Single);
             // Wait for the scene to be fully loaded before proceeding
             // StartCoroutine(WaitForSceneToLoadAndSpawnNewPlayer());
         }
