@@ -28,10 +28,26 @@ public class PlayerDeath : NetworkBehaviour
 
     private void Update()
     {
+        if (IsServer) // Ensure this check runs only on the server
+        {
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                TriggerDeathForAllPlayers();
+            }
+        }
+
         if(transform.position.y < fallThreshold && !isRespawning)
         {
             NotifyDeathServerRpc();
             // Die();
+        }
+    }
+
+    private void TriggerDeathForAllPlayers()
+    {
+        if (IsServer)
+        {
+            KillAllPlayersClientRpc();
         }
     }
 
