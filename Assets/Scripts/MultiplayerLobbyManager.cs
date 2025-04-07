@@ -26,6 +26,8 @@ public class MultiplayerLobbyManager : MonoBehaviour
 
 
     public Button joinButton;
+    public TMP_Text errorText; // Assign this in the Inspector
+
     private UnityTransport transport;
     private Lobby connectedLobby;
     private List<string> playerNames = new List<string>();
@@ -195,6 +197,7 @@ public class MultiplayerLobbyManager : MonoBehaviour
         catch (LobbyServiceException e)
         {
             Debug.LogError($"Failed to join lobby: {e.Reason} - {e.Message}");
+            errorText.text = "Invalid Code! Please try again.";
         }
         catch (Exception e)
         {
@@ -214,6 +217,7 @@ public class MultiplayerLobbyManager : MonoBehaviour
         else
         {
             Debug.LogError("Join Code is empty!");
+            errorText.text = "Please input a Join Code!";
         }
     }
 

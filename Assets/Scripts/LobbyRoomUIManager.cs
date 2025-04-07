@@ -20,7 +20,7 @@ public class LobbyRoomUIManager : MonoBehaviour
     [SerializeField] private List<Sprite> playerSprites; // List of available player sprites
     private int currentSpriteIndex = 0;
     private Image localPlayerImage; // Reference to the image of 'You'
-
+    public TMP_FontAsset newFontAsset;
 
     private string lobbyId;
     private Lobby currentLobby;
@@ -146,6 +146,7 @@ public class LobbyRoomUIManager : MonoBehaviour
 
             if (player.Id == localPlayerId)
             {
+                nameText.font = newFontAsset;
                 nameText.text = (player.Id == hostId) ? "You (Host)" : "You";
                 localPlayerImage = playerImage; // Store reference for sprite change
                 currentSpriteIndex = playerSpriteIndex; // Load saved sprite index
@@ -159,6 +160,7 @@ public class LobbyRoomUIManager : MonoBehaviour
             }
             else
             {
+                nameText.font = newFontAsset;
                 nameText.text = (player.Id == hostId) ? "Friend (Host)" : "Friend";
                 playerImage.sprite = playerSprites[playerSpriteIndex]; // Update sprite for friend
                 playerUI.GetComponent<RectTransform>().anchoredPosition = new Vector2(-400, 0);
@@ -174,8 +176,8 @@ public class LobbyRoomUIManager : MonoBehaviour
     {
         if (playerSprites.Count == 0 || localPlayerImage == null) return;
 
-        isCooldownActive = true; // Start cooldown
-        changeButton.interactable = false; // Disable button
+        // isCooldownActive = true; // Start cooldown
+        // changeButton.interactable = false; // Disable button
 
         currentSpriteIndex = (currentSpriteIndex + 1) % playerSprites.Count; // Cycle through sprites
         localPlayerImage.sprite = playerSprites[currentSpriteIndex];
@@ -198,9 +200,10 @@ public class LobbyRoomUIManager : MonoBehaviour
         // RefreshLobbyData();
 
         // Set cooldown timer
-        await System.Threading.Tasks.Task.Delay(3000); // 3-second delay before another click is allowed
-        isCooldownActive = false; // Reset cooldown
-        changeButton.interactable = true; //Re-enable button
+        
+        // await System.Threading.Tasks.Task.Delay(3000); // 3-second delay before another click is allowed
+        // isCooldownActive = false; // Reset cooldown
+        // changeButton.interactable = true; //Re-enable button
     }
 
     private async System.Threading.Tasks.Task DelayedUpdateSprite(System.Threading.CancellationToken token)
