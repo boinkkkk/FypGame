@@ -12,8 +12,7 @@ public class LevelComplete : NetworkBehaviour
     // [SerializeField] Button testButton;
     [SerializeField] Button closeButton;
     private int playersInTrigger = 0; // Track the number of players inside the trigger
-    private GameObject player; // Reference to the player GameObject
-    private PlayerMovement playerMovementScript; // Reference to the player's movement script
+    
     // [SerializeField] GameObject StarFragment;
 
     // Start is called before the first frame update
@@ -23,12 +22,6 @@ public class LevelComplete : NetworkBehaviour
 
         // testButton.onClick.AddListener(OnTestButtonClicked);
         closeButton.onClick.AddListener(OnCloseButtonClicked);
-
-        player = GameObject.FindGameObjectWithTag("Player");
-        if (player != null)
-        {
-            playerMovementScript = player.GetComponent<PlayerMovement>();
-        }
         
     }
 
@@ -116,10 +109,6 @@ public class LevelComplete : NetworkBehaviour
     private void ShowUiClientRpc()
     {
         CongratsPanel.SetActive(true);
-        if (playerMovementScript != null)
-        {
-            playerMovementScript.enabled = false; // Disable player movement
-        }
     }
 
     [ServerRpc(RequireOwnership = false)]
