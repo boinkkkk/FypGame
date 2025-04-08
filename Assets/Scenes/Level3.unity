@@ -7935,7 +7935,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1061851030}
         m_TargetAssemblyTypeName: BackToMenu, Assembly-CSharp
-        m_MethodName: LoadSceneByName
+        m_MethodName: SignOutAndChangeScene
         m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
