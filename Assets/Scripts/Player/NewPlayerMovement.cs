@@ -15,8 +15,7 @@ public class NewPlayerMovement : NetworkBehaviour
     public float jump;
     // public bool isJumping;
     public AudioClip jumpSound;
-    public AudioClip footstepSound;
-    
+
     private SpriteRenderer spriteRenderer;
     Animator animator;
     private CinemachineVirtualCamera cinemachineCam;
@@ -25,7 +24,7 @@ public class NewPlayerMovement : NetworkBehaviour
     // Use NetworkVariable to sync isJumping
     private NetworkVariable<bool> isJumping = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
-    
+
     // Start is called before the first frame update
     void Start()
     {
@@ -64,13 +63,14 @@ public class NewPlayerMovement : NetworkBehaviour
     {
         if (!IsOwner) return; // Only the owner can control movement
 
-// uncomment from here
+        // uncomment from here
         Move = Input.GetAxis("Horizontal");
         // Send movement input to the server
         MoveServerRpc(Move);
 
-        rb.velocity = new Vector2( Move * speed, rb.velocity.y);
-        if(Input.GetKeyDown(KeyCode.LeftShift)) {
+        rb.velocity = new Vector2(Move * speed, rb.velocity.y);
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
             animator.Play("WalkingAnim");
         }
 
@@ -87,11 +87,12 @@ public class NewPlayerMovement : NetworkBehaviour
             animator.SetBool("isWalking", true);
         }
 
-        else {
+        else
+        {
             animator.SetBool("isWalking", false);
         }
 
-        
+
         // if (Input.GetButtonDown("Jump") && isJumping == false) 
         // {
         //     rb.AddForce(Vector2.up * jump, ForceMode2D.Impulse);
@@ -137,13 +138,11 @@ public class NewPlayerMovement : NetworkBehaviour
         {
             spriteRenderer.flipX = false;
             animator.SetBool("isWalking", true);
-            audioSource.PlayOneShot(jumpSound);
         }
         else if (move < 0)
         {
             spriteRenderer.flipX = true;
             animator.SetBool("isWalking", true);
-            audioSource.PlayOneShot(jumpSound);
         }
         else
         {
@@ -156,21 +155,23 @@ public class NewPlayerMovement : NetworkBehaviour
     {
         if (!IsOwner) return; // Prevent running on non-owners
 
-         rb.AddForce(Vector2.up * jump, ForceMode2D.Impulse); // Apply force locally
-         audioSource.PlayOneShot(jumpSound);
+        rb.AddForce(Vector2.up * jump, ForceMode2D.Impulse); // Apply force locally
+        audioSource.PlayOneShot(jumpSound);
     }
 
-    private void OnCollisionEnter2D(Collision2D other) {
+    private void OnCollisionEnter2D(Collision2D other)
+    {
         // if player is on the ground, means not jumping
-        if (other.gameObject.CompareTag("Ground")) 
+        if (other.gameObject.CompareTag("Ground"))
         {
             RequestSetJumpingServerRpc(false);
             // isJumping.Value = false;
         }
     }
-    private void OnCollisionExit2D(Collision2D other) {
+    private void OnCollisionExit2D(Collision2D other)
+    {
         // if player is NOT on the ground, means jumping
-        if (other.gameObject.CompareTag("Ground")) 
+        if (other.gameObject.CompareTag("Ground"))
         {
             RequestSetJumpingServerRpc(true);
             // isJumping.Value = true;
@@ -183,7 +184,7 @@ public class NewPlayerMovement : NetworkBehaviour
         isJumping.Value = value;
     }
 
-// Uncomment here
+    // Uncomment here
     //     Move = Input.GetAxis("Horizontal");
     //     rb.velocity = new Vector2( Move * speed, rb.velocity.y);
     //     if(Input.GetKeyDown(KeyCode.LeftShift)) {
@@ -206,7 +207,7 @@ public class NewPlayerMovement : NetworkBehaviour
     //     else {
     //         animator.SetBool("isWalking", false);
     //     }
-        
+
     //     if (Input.GetButtonDown("Jump") && isJumping == false) 
     //     {
     //         rb.AddForce(Vector2.up * jump, ForceMode2D.Impulse);
