@@ -14,10 +14,12 @@ public class NewPlayerMovement : NetworkBehaviour
     private float Move;
     public float jump;
     // public bool isJumping;
+    public AudioClip jumpSound;
     
     private SpriteRenderer spriteRenderer;
     Animator animator;
     private CinemachineVirtualCamera cinemachineCam;
+    private AudioSource audioSource;
 
     // Use NetworkVariable to sync isJumping
     private NetworkVariable<bool> isJumping = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -26,6 +28,7 @@ public class NewPlayerMovement : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        audioSource = GetComponent<AudioSource>();
         spriteRenderer = GetComponent<SpriteRenderer>(); // Get the SpriteRenderer
         animator = GetComponent<Animator>();
 
@@ -151,6 +154,7 @@ public class NewPlayerMovement : NetworkBehaviour
         if (!IsOwner) return; // Prevent running on non-owners
 
          rb.AddForce(Vector2.up * jump, ForceMode2D.Impulse); // Apply force locally
+         audioSource.PlayOneShot(jumpSound);
     }
 
     private void OnCollisionEnter2D(Collision2D other) {
