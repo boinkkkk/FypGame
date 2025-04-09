@@ -266,6 +266,7 @@ MonoBehaviour:
   speed: 8
   jump: 90
   jumpSound: {fileID: 8300000, guid: d8e9f1b6409474aa48f7aaa4328bed3e, type: 3}
+  footstepSound: {fileID: 8300000, guid: c57baca170e9d492ab8992700359ea50, type: 3}
 --- !u!114 &5769679858721395291
 MonoBehaviour:
   m_ObjectHideFlags: 0

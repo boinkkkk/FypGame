@@ -15,6 +15,7 @@ public class NewPlayerMovement : NetworkBehaviour
     public float jump;
     // public bool isJumping;
     public AudioClip jumpSound;
+    public AudioClip footstepSound;
     
     private SpriteRenderer spriteRenderer;
     Animator animator;
@@ -136,11 +137,13 @@ public class NewPlayerMovement : NetworkBehaviour
         {
             spriteRenderer.flipX = false;
             animator.SetBool("isWalking", true);
+            audioSource.PlayOneShot(jumpSound);
         }
         else if (move < 0)
         {
             spriteRenderer.flipX = true;
             animator.SetBool("isWalking", true);
+            audioSource.PlayOneShot(jumpSound);
         }
         else
         {
