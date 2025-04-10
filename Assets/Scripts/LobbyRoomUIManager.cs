@@ -21,6 +21,7 @@ public class LobbyRoomUIManager : MonoBehaviour
     private int currentSpriteIndex = 0;
     private Image localPlayerImage; // Reference to the image of 'You'
     public TMP_FontAsset newFontAsset;
+    public TMP_Text message;
 
     private string lobbyId;
     private Lobby currentLobby;
@@ -363,11 +364,13 @@ public class LobbyRoomUIManager : MonoBehaviour
                 else
                 {
                     Debug.Log("Waiting for the host to start the game...");
+                    message.text = "Waiting for the host to start the game...";
                 }
             }
             else
             {
                 Debug.Log("Waiting for all players to be ready...");
+                message.text = "Waiting for all players to be ready...";
             }
         }
         catch (LobbyServiceException e)
