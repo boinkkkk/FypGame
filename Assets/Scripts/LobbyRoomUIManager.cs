@@ -424,7 +424,7 @@ public class LobbyRoomUIManager : MonoBehaviour
             {
                 Debug.LogWarning("⚠️ Rate limit exceeded! Slowing down requests.");
                 CancelInvoke(nameof(RefreshLobbyAndCheckReady));
-                InvokeRepeating(nameof(RefreshLobbyAndCheckReady), 10f, 10f); // Increase delay
+                InvokeRepeating(nameof(RefreshLobbyAndCheckReady), 5f, 5f); // Increase delay
             }
             else
             {
