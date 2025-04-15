@@ -11,14 +11,17 @@ public class PlayerDeath : NetworkBehaviour
     public Rigidbody2D rb;
     public GameObject respawnPoint; // Set this in Unity
     public float deathDelay = 1.5f;
+    public AudioClip deathSound;
     private bool isRespawning = false;
     private Animator animator;
     private float fallThreshold = -12f;
     private NewPlayerMovement movementScript;
     private RedButtonActivation redButton;
+    private AudioSource audioSource;
 
     private void Start()
     {
+        audioSource = GetComponent<AudioSource>();
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         movementScript = GetComponent<NewPlayerMovement>();  // Reference the movement script
@@ -84,6 +87,7 @@ public class PlayerDeath : NetworkBehaviour
     {
         Debug.Log("Player Died!");
         animator.SetTrigger("Die");
+        audioSource.PlayOneShot(deathSound);
 
         // Disable movement and gravity
         movementScript.enabled = false;

@@ -250,6 +250,7 @@ MonoBehaviour:
   rb: {fileID: 4345754792919377012}
   respawnPoint: {fileID: 9112461502673060461, guid: 91cd39ed072cf784c9bdc9df324c256e, type: 3}
   deathDelay: 3
+  deathSound: {fileID: 8300000, guid: 377b856d87291492faeaa2b0bcc4f6fc, type: 3}
 --- !u!114 &1660388036220022482
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -266,7 +267,6 @@ MonoBehaviour:
   speed: 8
   jump: 90
   jumpSound: {fileID: 8300000, guid: d8e9f1b6409474aa48f7aaa4328bed3e, type: 3}
-  footstepSound: {fileID: 8300000, guid: c57baca170e9d492ab8992700359ea50, type: 3}
 --- !u!114 &5769679858721395291
 MonoBehaviour:
   m_ObjectHideFlags: 0
