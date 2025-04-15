@@ -542,6 +542,7 @@ MonoBehaviour:
   rb: {fileID: 91643428}
   speed: 8
   jump: 90
+  jumpSound: {fileID: 0}
 --- !u!1 &106960113
 GameObject:
   m_ObjectHideFlags: 0
@@ -2540,8 +2541,8 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 567098406}
-  - {fileID: 311286806}
   - {fileID: 672440490}
+  - {fileID: 311286806}
   - {fileID: 644880919}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
