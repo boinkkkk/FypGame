@@ -76,6 +76,7 @@ public class PlayerDeath : NetworkBehaviour
     private void KillAllPlayersClientRpc(ClientRpcParams clientRpcParams = default)
     {
         Debug.Log("killing all players");
+        audioSource.PlayOneShot(deathSound);
         // Die();
         foreach(var player in FindObjectsOfType<PlayerDeath>())
         {
@@ -87,7 +88,7 @@ public class PlayerDeath : NetworkBehaviour
     {
         Debug.Log("Player Died!");
         animator.SetTrigger("Die");
-        audioSource.PlayOneShot(deathSound);
+        
 
         // Disable movement and gravity
         movementScript.enabled = false;
